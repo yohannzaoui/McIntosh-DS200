@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const infoLine = document.getElementById('info-line');
     const vfdDisplay = document.querySelector('.vfd-display');
     const volDisplay = document.getElementById('vol-display');
+    const trackNumberDisplay = document.getElementById('track-number');
+    const timeDisplay = document.getElementById('time-display'); // Sélectionné ici
 
     // Playlist state
     let playlist = [];
@@ -15,13 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputKnob = document.getElementById('input-knob');
     const volumeKnob = document.getElementById('volume-knob');
 
-    // Boutons de Transport (Ciblés par ID)
+    // Boutons de Transport
     const playPauseBtn = document.getElementById('play-pause');
     const stopBtn = document.getElementById('stop-btn');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
 
-    // Boutons Utilitaires (Ciblés par ID)
+    // Boutons Utilitaires
     const displayBtn = document.getElementById('display-btn');
     const muteBtn = document.getElementById('mute-btn');
     const standbyBtn = document.getElementById('standby-btn');
@@ -35,19 +37,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
             
-            statusLine.innerText = "LOADING...";
+            // Mise à jour du compteur de piste (ex: 5/15)
+            if (trackNumberDisplay) {
+                trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
+            }
+
+            // Réinitialisation du temps à l'écran
+            if (timeDisplay) timeDisplay.innerText = "00:00";
             
-            setTimeout(() => {
-                const displayName = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-                statusLine.innerText = displayName;
-                infoLine.innerText = `TRACK ${index + 1} / ${playlist.length}`;
-                
-                if (playPauseBtn.classList.contains('active')) {
-                    audio.play().catch(e => console.log("Lecture auto bloquée"));
+            statusLine.innerText = "READING TAGS...";
+
+            // Lecture des métadonnées
+            jsmediatags.read(file, {
+                onSuccess: function(tag) {
+                    const tags = tag.tags;
+                    const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
+                    const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+
+                    statusLine.innerText = title;
+                    infoLine.innerText = artist;
+                },
+                onError: function(error) {
+                    statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                    infoLine.innerText = "NO METADATA";
                 }
-            }, 500);
+            });
+
+            if (playPauseBtn.classList.contains('active')) {
+                audio.play().catch(e => console.log("Lecture auto impossible"));
+            }
         }
     };
+
+    // --- MISE À JOUR DU COMPTEUR DE TEMPS (EN DIRECT) ---
+    audio.addEventListener('timeupdate', () => {
+        if (timeDisplay && !isNaN(audio.currentTime)) {
+            const mins = Math.floor(audio.currentTime / 60);
+            const secs = Math.floor(audio.currentTime % 60);
+            const formattedMins = mins.toString().padStart(2, '0');
+            const formattedSecs = secs.toString().padStart(2, '0');
+            timeDisplay.innerText = `${formattedMins}:${formattedSecs}`;
+        }
+    });
 
     // --- LOGIQUE DE CHARGEMENT MULTIPLE ---
     inputKnob.addEventListener('click', () => fileLoader.click());
@@ -61,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- NAVIGATION (SUIVANT / PRÉCÉDENT) ---
+    // --- NAVIGATION ---
     nextBtn.addEventListener('click', () => {
         if (playlist.length === 0) return;
         currentIndex = (currentIndex + 1) % playlist.length;
@@ -82,13 +113,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LOGIQUE DE LECTURE (PLAY/PAUSE) ---
+    // --- LOGIQUE DE LECTURE ---
     playPauseBtn.addEventListener('click', () => {
         if (!audio.src) {
             infoLine.innerText = "NO FILES LOADED";
             return;
         }
-
         if (audio.paused) {
             audio.play();
             playPauseBtn.classList.add('active');
@@ -104,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stopBtn.addEventListener('click', () => {
         audio.pause();
         audio.currentTime = 0;
+        if (timeDisplay) timeDisplay.innerText = "00:00"; // Reset chrono au stop
         playPauseBtn.classList.remove('active');
         infoLine.innerText = "STOPPED";
     });
@@ -118,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     muteBtn.addEventListener('click', () => {
         audio.muted = !audio.muted;
         muteLed.classList.toggle('active');
-        
         if (audio.muted) {
             infoLine.dataset.oldText = infoLine.innerText;
             infoLine.innerText = "MUTE ON";
@@ -127,12 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- LOGIQUE STANDBY (RÉINITIALISATION) ---
+    // --- LOGIQUE STANDBY (RESET) ---
     standbyBtn.addEventListener('click', () => {
         statusLine.innerText = "SHUTDOWN...";
         infoLine.innerText = "REBOOTING";
-        
-        // Délai de 500ms pour simuler l'extinction avant refresh
         setTimeout(() => {
             window.location.reload();
         }, 500);

@@ -214,3 +214,47 @@ body {
     background: #ff0000; 
     box-shadow: 0 0 10px #ff0000; 
 }
+
+.vfd-display {
+    position: relative; /* Indispensable pour positionner le compteur */
+}
+
+.track-counter {
+    position: absolute;
+    top: 25px;
+    left: 30px;
+    text-align: left;
+    color: #33ccff; /* Même couleur que le reste de l'écran */
+}
+
+.track-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+#track-number {
+    font-size: 1.4rem;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.time-counter {
+    position: absolute;
+    top: 25px;
+    right: 30px; /* Positionné à droite */
+    text-align: right;
+    color: #33ccff;
+}
+
+.time-label {
+    font-size: 10px; /* Même taille que TRACK */
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+#time-display {
+    font-size: 1.4rem; /* Même taille que le compteur de track */
+    font-family: 'Courier New', Courier, monospace;
+}
