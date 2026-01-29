@@ -7,15 +7,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const vfdDisplay = document.querySelector('.vfd-display');
     const volDisplay = document.getElementById('vol-display');
     const trackNumberDisplay = document.getElementById('track-number');
+    const formatDisplay = document.getElementById('file-format'); // Nouveau sélecteur pour le format
     const timeDisplay = document.getElementById('time-display');
     const albumDisplay = document.getElementById('album-name');
     const artistDisplay = document.getElementById('artist-name');
-    const statusIcon = document.getElementById('status-icon');
+    const statusIcon = document.getElementById('status-icon');  
+    const modal = document.getElementById('cover-modal');
+    const modalImg = document.getElementById('cover-art-full');
+    const closeModal = document.querySelector('.close-modal');
 
     // Playlist state
     let playlist = [];
     let currentIndex = 0;
     let volTimeout;
+    let currentCoverData = null; 
 
     // Boutons Rotatifs
     const inputKnob = document.getElementById('input-knob');
@@ -41,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initVisualizer() {
         if (audioCtx) return;
-        
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
         source = audioCtx.createMediaElementSource(audio);
@@ -54,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = canvas.offsetWidth * dpr;
         canvas.height = canvas.offsetHeight * dpr;
         ctx.scale(dpr, dpr);
-
         draw();
     }
 
@@ -62,29 +65,23 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(draw);
         if (!analyser) return;
         analyser.getByteFrequencyData(dataArray);
-
         const logicalWidth = canvas.width / (window.devicePixelRatio || 1);
         const logicalHeight = canvas.height / (window.devicePixelRatio || 1);
-        
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
-
         const barWidth = Math.floor((logicalWidth / dataArray.length) * 0.85);
         const segmentHeight = 4; 
         const segmentGap = 1; 
         const totalSegments = Math.floor(logicalHeight / (segmentHeight + segmentGap));
-        
         let x = 0;
         for (let i = 0; i < dataArray.length; i++) {
             const intensity = dataArray[i] / 255;
             const segmentsToFill = Math.floor(intensity * totalSegments);
-
             for (let j = 0; j < segmentsToFill; j++) {
                 const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
                 let color = "#00ff00"; 
                 const percent = j / totalSegments;
                 if (percent > 0.85) color = "#ff0000";      
                 else if (percent > 0.65) color = "#ffaa00"; 
-
                 ctx.fillStyle = color;
                 ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
                 ctx.fillStyle = "rgba(255,255,255,0.1)";
@@ -101,9 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
             
+            // AFFICHAGE DU FORMAT (Ex: MP3, FLAC)
+            if (formatDisplay) {
+                const extension = file.name.split('.').pop().toUpperCase();
+                formatDisplay.innerText = extension;
+            }
+
             trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
             timeDisplay.innerText = "00:00";
             statusLine.innerText = "READING TAGS...";
+            currentCoverData = null; 
 
             jsmediatags.read(file, {
                 onSuccess: function(tag) {
@@ -115,6 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusLine.innerText = title;
                     artistDisplay.innerText = artist;
                     albumDisplay.innerText = album;
+
+                    if (tags.picture) {
+                        const { data, format } = tags.picture;
+                        let base64String = "";
+                        for (let i = 0; i < data.length; i++) {
+                            base64String += String.fromCharCode(data[i]);
+                        }
+                        currentCoverData = `data:${format};base64,${window.btoa(base64String)}`;
+                    }
                 },
                 onError: function() {
                     statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
@@ -129,10 +142,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- CLIC SUR LE TITRE -> POP-UP POCHETTE ---
+    statusLine.style.cursor = "pointer";
+    statusLine.addEventListener('click', () => {
+        if (currentCoverData) {
+            modalImg.src = currentCoverData;
+            modal.style.display = "block";
+        }
+    });
+
+    if (closeModal) {
+        closeModal.onclick = () => modal.style.display = "none";
+    }
+    window.onclick = (event) => {
+        if (event.target == modal) modal.style.display = "none";
+    };
+
     // --- LOGIQUE AFFICHAGE VOLUME (VFD UNIQUEMENT) ---
     const showVolumeOnVFD = () => {
         if (vfdDisplay.classList.contains('power-off')) return;
-
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
         const currentVol = Math.round(audio.volume * 100);
@@ -144,14 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
             volLabel.innerText = "LEVEL";
             volDisplay.innerText = `${currentVol}%`;
         }
-
         volContainer.classList.add('visible');
-
         clearTimeout(volTimeout);
         volTimeout = setTimeout(() => {
-            if (!audio.muted) {
-                volContainer.classList.remove('visible');
-            }
+            if (!audio.muted) volContainer.classList.remove('visible');
         }, 1500);
     };
 
@@ -164,14 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = volumeKnob.getBoundingClientRect();
         const x = e.clientX - rect.left;
         if (x < rect.width / 2) {
-            audio.volume = Math.max(0, audio.volume - 0.02);
+            audio.volume = Math.max(0, audio.volume - 0.05); // Par pas de 5%
         } else {
-            audio.volume = Math.min(1, audio.volume + 0.02);
+            audio.volume = Math.min(1, audio.volume + 0.05);
         }
         showVolumeOnVFD();
     });
 
-    // Déclencheur au survol
     volumeKnob.addEventListener('mouseenter', showVolumeOnVFD);
 
     muteBtn.addEventListener('click', () => {
@@ -180,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showVolumeOnVFD();
     });
 
-    // --- TRANSPORT & NAVIGATION ---
+    // --- NAVIGATION ---
     audio.addEventListener('timeupdate', () => {
         if (timeDisplay && !isNaN(audio.currentTime)) {
             const mins = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
