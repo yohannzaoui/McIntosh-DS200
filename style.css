@@ -267,3 +267,18 @@ body {
 
 .led.green.active { background: #22ff22; box-shadow: 0 0 10px #22ff22; }
 .led.red.active { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+
+.time-wrapper {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 10px; /* Espace entre l'icône et le temps */
+}
+
+.status-symbol {
+    font-size: 1.2rem;
+    color: #00ff00; /* Vert McIntosh */
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}

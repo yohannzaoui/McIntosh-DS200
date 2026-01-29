@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeDisplay = document.getElementById('time-display');
     const albumDisplay = document.getElementById('album-name');
     const artistDisplay = document.getElementById('artist-name');
+    const statusIcon = document.getElementById('status-icon');
 
     // Playlist state
     let playlist = [];
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initVisualizer() {
         if (audioCtx) return;
+        
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
         source = audioCtx.createMediaElementSource(audio);
@@ -46,6 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser.connect(audioCtx.destination);
         analyser.fftSize = 64; 
         dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        // --- CORRECTION DU FLOU (HDPI) ---
+        const dpr = window.devicePixelRatio || 1;
+        // On ajuste la taille interne du canvas au ratio de l'écran
+        canvas.width = canvas.offsetWidth * dpr;
+        canvas.height = canvas.offsetHeight * dpr;
+        // On scale le contexte pour pouvoir dessiner avec des unités logiques
+        ctx.scale(dpr, dpr);
+
         draw();
     }
 
@@ -53,43 +64,42 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(draw);
         if (!analyser) return;
         analyser.getByteFrequencyData(dataArray);
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const barWidth = (canvas.width / dataArray.length) * 0.8;
-        const segmentHeight = 8; // Hauteur d'un segment
-        const segmentGap = 4;    // Espace entre les segments
-        const totalSegments = Math.floor(canvas.height / (segmentHeight + segmentGap));
+        // On utilise les dimensions réelles pour le calcul
+        const logicalWidth = canvas.width / (window.devicePixelRatio || 1);
+        const logicalHeight = canvas.height / (window.devicePixelRatio || 1);
+        
+        ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+        const barWidth = Math.floor((logicalWidth / dataArray.length) * 0.85);
+        const segmentHeight = 4; 
+        const segmentGap = 1; // Espace réduit pour plus de densité
+        const totalSegments = Math.floor(logicalHeight / (segmentHeight + segmentGap));
         
         let x = 0;
         for (let i = 0; i < dataArray.length; i++) {
-            // Calcul du nombre de segments à allumer pour cette fréquence
             const intensity = dataArray[i] / 255;
             const segmentsToFill = Math.floor(intensity * totalSegments);
 
             for (let j = 0; j < segmentsToFill; j++) {
-                const y = canvas.height - (j * (segmentHeight + segmentGap));
+                // Utilisation de Math.floor pour éviter les demi-pixels (cause du flou)
+                const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
                 
-                // Détermination de la couleur selon la hauteur (le pic)
-                let color = "#00ff00"; // Vert par défaut
-                
+                let color = "#00ff00"; // VERT
                 const percent = j / totalSegments;
-                if (percent > 0.85) {
-                    color = "#ff0000"; // Rouge pour les 15% du haut
-                } else if (percent > 0.65) {
-                    color = "#ff8800"; // Orange pour la zone intermédiaire
-                }
+                if (percent > 0.85) color = "#ff0000";      // ROUGE
+                else if (percent > 0.65) color = "#ffaa00"; // ORANGE
 
                 ctx.fillStyle = color;
-                // Effet de lueur pour simuler une LED
-                ctx.shadowBlur = 5;
-                ctx.shadowColor = color;
                 
-                ctx.fillRect(x, y - segmentHeight, barWidth, segmentHeight);
+                // Dessin du segment net
+                ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
+                
+                // Optionnel : un petit reflet interne pour l'effet "cristal"
+                ctx.fillStyle = "rgba(255,255,255,0.1)";
+                ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, 1);
             }
-            
-            // On réinitialise l'ombre pour la barre suivante pour les performances
-            ctx.shadowBlur = 0;
-            x += barWidth + (canvas.width / dataArray.length) * 0.2;
+            x += (logicalWidth / dataArray.length);
         }
     }
 
@@ -188,13 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playPauseBtn.addEventListener('click', () => {
         if (!audio.src) return;
-        initVisualizer(); // Initialise l'audio context au premier clic
+        initVisualizer(); 
+
         if (audio.paused) {
             audio.play();
             playPauseBtn.classList.add('active');
+            statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>'; // Affiche PLAY
         } else {
             audio.pause();
             playPauseBtn.classList.remove('active');
+            statusIcon.innerHTML = '<i class="fa-solid fa-pause"></i>'; // Affiche PAUSE
         }
     });
 
@@ -203,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         audio.currentTime = 0;
         timeDisplay.innerText = "00:00";
         playPauseBtn.classList.remove('active');
+        statusIcon.innerHTML = ""; // Efface le symbole au stop
     });
 
     nextBtn.addEventListener('click', () => {
