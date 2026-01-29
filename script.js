@@ -214,9 +214,19 @@ document.addEventListener('DOMContentLoaded', () => {
     stopBtn.addEventListener('click', () => {
         audio.pause();
         audio.currentTime = 0;
-        timeDisplay.innerText = "00:00";
+        
+        // Mise à jour du compteur de temps
+        if (timeDisplay) timeDisplay.innerText = "00:00";
+        
+        // Retrait de l'état actif du bouton Play
         playPauseBtn.classList.remove('active');
-        statusIcon.innerHTML = ""; // Efface le symbole au stop
+        
+        // AFFICHAGE DU SYMBOLE STOP (Carré)
+        // On utilise l'icône FontAwesome correspondante
+        statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';
+        
+        // Optionnel : On peut vider le nom de la piste ou mettre "STOPPED"
+        infoLine.innerText = "STOPPED";
     });
 
     nextBtn.addEventListener('click', () => {
