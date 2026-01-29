@@ -39,6 +39,12 @@
                             <div class="track-label">TRACK</div>
                             <div id="track-number">0/0</div>
                         </div>
+
+                        <div class="volume-center">
+                            <div class="vol-label">LEVEL</div>
+                            <div id="vol-display">60%</div>
+                        </div>
+
                         <div class="time-counter">
                             <div class="time-label">MIN:SEC</div>
                             <div id="time-display">00:00</div>
@@ -46,9 +52,19 @@
 
                         <div class="display-content">
                             <div id="status-line">NO MEDIA</div>
-                            <div id="info-line">Select Files</div>
+                            <div id="meta-subline">
+                                <span id="album-name">ALBUM</span>
+                                <span class="separator"> - </span>
+                                <span id="artist-name">ARTIST</span>
+                            </div>
                         </div>
-                        <div class="volume-indicator" id="vol-display">60%</div>
+
+                        <div class="visualizer-container">
+                            <canvas id="vfd-visualizer"></canvas>
+                            <div class="freq-labels">
+                                <span>20</span><span>60</span><span>150</span><span>400</span><span>1k</span><span>2.5k</span><span>6k</span><span>15k</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="knob-container">

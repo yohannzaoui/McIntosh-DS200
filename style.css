@@ -1,3 +1,4 @@
+/* --- BASE --- */
 body {
     background-color: #0a0a0a;
     display: flex;
@@ -55,43 +56,123 @@ body {
     align-items: center;
 }
 
-/* Écran VFD */
+/* --- ÉCRAN VFD --- */
 .vfd-display {
     width: 800px;
     height: 300px;
     background: #020502;
     border: 2px solid #111;
+    position: relative; /* Crucial pour le positionnement absolu des éléments internes */
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    flex-direction: column;
     color: #33ccff;
     font-family: 'Courier New', Courier, monospace;
     font-size: 2.5rem;
     font-weight: bold;
     text-shadow: 0 0 15px rgba(51, 204, 255, 0.7);
     box-shadow: inset 0 0 30px rgba(0,0,0,1);
-    transition: all 0.3s ease; /* Pour l'effet d'extinction fluide */
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
-/* État éteint de l'écran via JS */
 .vfd-display.power-off {
     background: #000;
-    color: transparent;
-    text-shadow: none;
+    color: transparent !important;
+    text-shadow: none !important;
     box-shadow: inset 0 0 80px rgba(0,0,0,1);
     border-color: #050505;
 }
 
-.vfd-display.power-off .volume-indicator {
-    color: transparent;
+/* Compteurs Haut (Gauche, Centre, Droite) */
+.track-counter, .time-counter, .volume-center {
+    position: absolute;
+    top: 20px;
 }
 
-.volume-indicator {
-    color: #22ff22;
-    font-size: 3rem;
+.track-counter { left: 30px; text-align: left; }
+.time-counter { right: 30px; text-align: right; }
+.volume-center {
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: #00ff00; /* Vert McIntosh */
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Boutons Rotatifs */
+.volume-center.visible { opacity: 1; }
+
+.track-label, .time-label, .vol-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+#track-number, #time-display, #vol-display {
+    font-size: 1.4rem;
+}
+
+/* Zone Centrale (Titre / Artiste) */
+.display-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 80px; /* Aligné sous les compteurs */
+    width: 100%;
+    text-align: center;
+}
+
+#status-line {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+#meta-subline {
+    font-size: 1rem;
+    color: #33ccff;
+    opacity: 0.9;
+    display: flex;
+    gap: 10px;
+}
+
+.separator { color: #00ff00; }
+
+/* --- VU-MÈTRE (Ancré en bas) --- */
+.visualizer-container {
+    position: absolute;
+    bottom: 5px;
+    left: 15px;
+    right: 15px;
+    height: 80px; /* Espace réservé */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+#vfd-visualizer {
+    width: 100%;
+    height: 50px; 
+    border-bottom: none; /* On enlève la ligne grise pour plus de clarté */
+    background: #000;
+}
+
+.freq-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 9px;
+    color: #33ccff;
+    font-family: Arial, sans-serif;
+    opacity: 0.6;
+    padding: 0 5px;
+}
+
+/* --- BOUTONS ROTATIFS --- */
 .knob-container {
     display: flex;
     flex-direction: column;
@@ -101,7 +182,7 @@ body {
 .knob-outer {
     width: 160px;
     height: 160px;
-    background: #111;
+    background: linear-gradient(to right, #a5a5a5 0%, #aaa 10%, #eee 50%, #aaa 90%, #a5a5a5 100%);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -119,31 +200,21 @@ body {
     cursor: pointer;
 }
 
-.label { 
-    color: #22ff22; 
-    font-size: 1.1rem; 
-    letter-spacing: 2px;
-    margin-bottom: 15px; 
-}
+#volume-knob { cursor: e-resize; }
 
-.sub-label { 
-    color: #555; 
-    font-size: 0.8rem; 
-    margin-top: 15px; 
-}
+.label { color: #22ff22; font-size: 1.1rem; letter-spacing: 2px; margin-bottom: 15px; }
+.sub-label { color: #555; font-size: 0.8rem; margin-top: 15px; }
 
-/* --- SECTION BOUTONS ET MARQUAGES --- */
-
+/* --- BOUTONS DU BAS --- */
 .bottom-row {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 0 20px 25px 20px; /* Descente des boutons effectuée */
+    padding: 0 20px 25px 20px;
 }
 
-.transport-buttons, 
-.utility-buttons {
+.transport-buttons, .utility-buttons {
     display: flex;
     gap: 30px;
     align-items: flex-end;
@@ -156,10 +227,7 @@ body {
     gap: 8px;
 }
 
-/* Marquages 10px imposés (Textes et FontAwesome) */
-.btn-label, 
-.standby-txt, 
-.btn-label i {
+.btn-label, .standby-txt, .btn-label i {
     color: #22ff22;
     font-size: 10px !important;
     font-weight: bold;
@@ -167,10 +235,8 @@ body {
     letter-spacing: 1px;
     text-shadow: 0 0 5px rgba(34, 255, 34, 0.4);
     text-align: center;
-    margin: 0;
 }
 
-/* Style des boutons physiques (Noir par défaut) */
 .btn-transport, .btn-round {
     background: linear-gradient(180deg, #1a1a1a, #050505);
     border: 1px solid #333;
@@ -184,77 +250,20 @@ body {
     transition: all 0.2s ease;
 }
 
-/* Bouton Standby ROUGE permanent */
 .btn-round.standby {
     background: #ff0000;
     border: 1px solid #880000;
     box-shadow: inset 0 1px 3px rgba(255,255,255,0.4);
 }
 
-.btn-transport.active {
-    border-color: none;
-    box-shadow: none;
-}
-
-/* LEDS au-dessus des textes */
+/* LEDS */
 .led {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #1a0000; /* État éteint sombre */
+    background: #1a0000;
     margin-bottom: 2px;
 }
 
-.led.green.active { 
-    background: #22ff22; 
-    box-shadow: 0 0 10px #22ff22; 
-}
-
-.led.red.active { 
-    background: #ff0000; 
-    box-shadow: 0 0 10px #ff0000; 
-}
-
-.vfd-display {
-    position: relative; /* Indispensable pour positionner le compteur */
-}
-
-.track-counter {
-    position: absolute;
-    top: 25px;
-    left: 30px;
-    text-align: left;
-    color: #33ccff; /* Même couleur que le reste de l'écran */
-}
-
-.track-label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    margin-bottom: 2px;
-    opacity: 0.8;
-}
-
-#track-number {
-    font-size: 1.4rem;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-.time-counter {
-    position: absolute;
-    top: 25px;
-    right: 30px; /* Positionné à droite */
-    text-align: right;
-    color: #33ccff;
-}
-
-.time-label {
-    font-size: 10px; /* Même taille que TRACK */
-    letter-spacing: 2px;
-    margin-bottom: 2px;
-    opacity: 0.8;
-}
-
-#time-display {
-    font-size: 1.4rem; /* Même taille que le compteur de track */
-    font-family: 'Courier New', Courier, monospace;
-}
+.led.green.active { background: #22ff22; box-shadow: 0 0 10px #22ff22; }
+.led.red.active { background: #ff0000; box-shadow: 0 0 10px #ff0000; }

@@ -3,15 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const audio = document.getElementById('main-audio');
     const fileLoader = document.getElementById('file-loader');
     const statusLine = document.getElementById('status-line');
-    const infoLine = document.getElementById('info-line');
     const vfdDisplay = document.querySelector('.vfd-display');
     const volDisplay = document.getElementById('vol-display');
     const trackNumberDisplay = document.getElementById('track-number');
-    const timeDisplay = document.getElementById('time-display'); // Sélectionné ici
+    const timeDisplay = document.getElementById('time-display');
+    const albumDisplay = document.getElementById('album-name');
+    const artistDisplay = document.getElementById('artist-name');
 
     // Playlist state
     let playlist = [];
     let currentIndex = 0;
+    let volTimeout;
 
     // Boutons Rotatifs
     const inputKnob = document.getElementById('input-knob');
@@ -30,6 +32,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const muteLed = document.getElementById('mute-led');
     const displayLed = document.querySelector('.utility-buttons .led.green.active');
 
+    // --- VISUALISEUR (VU-MÈTRE) ---
+    const canvas = document.getElementById('vfd-visualizer');
+    const ctx = canvas.getContext('2d');
+    let audioCtx, analyser, source, dataArray;
+
+    function initVisualizer() {
+        if (audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        source = audioCtx.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        analyser.fftSize = 64; 
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        draw();
+    }
+
+    function draw() {
+        requestAnimationFrame(draw);
+        if (!analyser) return;
+        analyser.getByteFrequencyData(dataArray);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / dataArray.length) * 0.8;
+        const segmentHeight = 8; // Hauteur d'un segment
+        const segmentGap = 4;    // Espace entre les segments
+        const totalSegments = Math.floor(canvas.height / (segmentHeight + segmentGap));
+        
+        let x = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+            // Calcul du nombre de segments à allumer pour cette fréquence
+            const intensity = dataArray[i] / 255;
+            const segmentsToFill = Math.floor(intensity * totalSegments);
+
+            for (let j = 0; j < segmentsToFill; j++) {
+                const y = canvas.height - (j * (segmentHeight + segmentGap));
+                
+                // Détermination de la couleur selon la hauteur (le pic)
+                let color = "#00ff00"; // Vert par défaut
+                
+                const percent = j / totalSegments;
+                if (percent > 0.85) {
+                    color = "#ff0000"; // Rouge pour les 15% du haut
+                } else if (percent > 0.65) {
+                    color = "#ff8800"; // Orange pour la zone intermédiaire
+                }
+
+                ctx.fillStyle = color;
+                // Effet de lueur pour simuler une LED
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = color;
+                
+                ctx.fillRect(x, y - segmentHeight, barWidth, segmentHeight);
+            }
+            
+            // On réinitialise l'ombre pour la barre suivante pour les performances
+            ctx.shadowBlur = 0;
+            x += barWidth + (canvas.width / dataArray.length) * 0.2;
+        }
+    }
+
     // --- FONCTION DE CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
@@ -37,29 +100,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
             
-            // Mise à jour du compteur de piste (ex: 5/15)
-            if (trackNumberDisplay) {
-                trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
-            }
-
-            // Réinitialisation du temps à l'écran
-            if (timeDisplay) timeDisplay.innerText = "00:00";
-            
+            trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
+            timeDisplay.innerText = "00:00";
             statusLine.innerText = "READING TAGS...";
+            albumDisplay.innerText = "LOADING...";
+            artistDisplay.innerText = "LOADING...";
 
-            // Lecture des métadonnées
             jsmediatags.read(file, {
                 onSuccess: function(tag) {
                     const tags = tag.tags;
-                    const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
                     const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                    const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
+                    const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
 
                     statusLine.innerText = title;
-                    infoLine.innerText = artist;
+                    artistDisplay.innerText = artist;
+                    albumDisplay.innerText = album;
                 },
                 onError: function(error) {
                     statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-                    infoLine.innerText = "NO METADATA";
+                    artistDisplay.innerText = "DS200 PLAYER";
+                    albumDisplay.innerText = "NO METADATA";
                 }
             });
 
@@ -69,103 +130,103 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- MISE À JOUR DU COMPTEUR DE TEMPS (EN DIRECT) ---
+    // --- LOGIQUE VOLUME (2%) ---
+    volumeKnob.addEventListener('click', (e) => {
+        const volContainer = document.querySelector('.volume-center');
+        const volLabel = volContainer.querySelector('.vol-label');
+        
+        if (audio.muted) {
+            audio.muted = false;
+            muteLed.classList.remove('active');
+            volLabel.innerText = "LEVEL";
+        }
+
+        const rect = volumeKnob.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        if (x < rect.width / 2) {
+            audio.volume = Math.max(0, audio.volume - 0.02);
+        } else {
+            audio.volume = Math.min(1, audio.volume + 0.02);
+        }
+
+        volDisplay.innerText = `${Math.round(audio.volume * 100)}%`;
+        volContainer.classList.add('visible');
+
+        clearTimeout(volTimeout);
+        volTimeout = setTimeout(() => {
+            if (!audio.muted) volContainer.classList.remove('visible');
+        }, 2000);
+    });
+
+    // --- LOGIQUE MUTE (VERT) ---
+    muteBtn.addEventListener('click', () => {
+        audio.muted = !audio.muted;
+        muteLed.classList.toggle('active');
+        const volContainer = document.querySelector('.volume-center');
+        const volLabel = volContainer.querySelector('.vol-label');
+
+        if (audio.muted) {
+            volLabel.innerText = "STATUS";
+            volDisplay.innerText = "MUTE";
+            volContainer.classList.add('visible');
+            clearTimeout(volTimeout);
+        } else {
+            volLabel.innerText = "LEVEL";
+            volDisplay.innerText = `${Math.round(audio.volume * 100)}%`;
+            volTimeout = setTimeout(() => volContainer.classList.remove('visible'), 1000);
+        }
+    });
+
+    // --- TRANSPORT & EVENTS ---
     audio.addEventListener('timeupdate', () => {
         if (timeDisplay && !isNaN(audio.currentTime)) {
-            const mins = Math.floor(audio.currentTime / 60);
-            const secs = Math.floor(audio.currentTime % 60);
-            const formattedMins = mins.toString().padStart(2, '0');
-            const formattedSecs = secs.toString().padStart(2, '0');
-            timeDisplay.innerText = `${formattedMins}:${formattedSecs}`;
+            const mins = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
+            const secs = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+            timeDisplay.innerText = `${mins}:${secs}`;
         }
     });
 
-    // --- LOGIQUE DE CHARGEMENT MULTIPLE ---
-    inputKnob.addEventListener('click', () => fileLoader.click());
-
-    fileLoader.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            playlist = files;
-            currentIndex = 0;
-            loadTrack(currentIndex);
+    playPauseBtn.addEventListener('click', () => {
+        if (!audio.src) return;
+        initVisualizer(); // Initialise l'audio context au premier clic
+        if (audio.paused) {
+            audio.play();
+            playPauseBtn.classList.add('active');
+        } else {
+            audio.pause();
+            playPauseBtn.classList.remove('active');
         }
     });
 
-    // --- NAVIGATION ---
+    stopBtn.addEventListener('click', () => {
+        audio.pause();
+        audio.currentTime = 0;
+        timeDisplay.innerText = "00:00";
+        playPauseBtn.classList.remove('active');
+    });
+
     nextBtn.addEventListener('click', () => {
-        if (playlist.length === 0) return;
         currentIndex = (currentIndex + 1) % playlist.length;
         loadTrack(currentIndex);
     });
 
     prevBtn.addEventListener('click', () => {
-        if (playlist.length === 0) return;
         currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
         loadTrack(currentIndex);
     });
 
-    audio.addEventListener('ended', () => {
-        if (playlist.length > 0) {
-            currentIndex = (currentIndex + 1) % playlist.length;
-            loadTrack(currentIndex);
-            audio.play();
-        }
+    inputKnob.addEventListener('click', () => fileLoader.click());
+    fileLoader.addEventListener('change', (e) => {
+        playlist = Array.from(e.target.files);
+        if (playlist.length > 0) { currentIndex = 0; loadTrack(currentIndex); }
     });
 
-    // --- LOGIQUE DE LECTURE ---
-    playPauseBtn.addEventListener('click', () => {
-        if (!audio.src) {
-            infoLine.innerText = "NO FILES LOADED";
-            return;
-        }
-        if (audio.paused) {
-            audio.play();
-            playPauseBtn.classList.add('active');
-            infoLine.innerText = "PLAYING";
-        } else {
-            audio.pause();
-            playPauseBtn.classList.remove('active');
-            infoLine.innerText = "PAUSED";
-        }
-    });
-
-    // --- LOGIQUE STOP ---
-    stopBtn.addEventListener('click', () => {
-        audio.pause();
-        audio.currentTime = 0;
-        if (timeDisplay) timeDisplay.innerText = "00:00"; // Reset chrono au stop
-        playPauseBtn.classList.remove('active');
-        infoLine.innerText = "STOPPED";
-    });
-
-    // --- LOGIQUE DISPLAY (ON/OFF) ---
     displayBtn.addEventListener('click', () => {
         vfdDisplay.classList.toggle('power-off');
         if(displayLed) displayLed.classList.toggle('active');
     });
 
-    // --- LOGIQUE MUTE ---
-    muteBtn.addEventListener('click', () => {
-        audio.muted = !audio.muted;
-        muteLed.classList.toggle('active');
-        if (audio.muted) {
-            infoLine.dataset.oldText = infoLine.innerText;
-            infoLine.innerText = "MUTE ON";
-        } else {
-            infoLine.innerText = infoLine.dataset.oldText || "READY";
-        }
-    });
+    standbyBtn.addEventListener('click', () => window.location.reload());
 
-    // --- LOGIQUE STANDBY (RESET) ---
-    standbyBtn.addEventListener('click', () => {
-        statusLine.innerText = "SHUTDOWN...";
-        infoLine.innerText = "REBOOTING";
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
-    });
-
-    // Initialisation
     audio.volume = 0.6;
 });
