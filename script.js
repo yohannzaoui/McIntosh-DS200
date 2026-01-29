@@ -24,8 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Boutons Utilitaires (Ciblés par ID)
     const displayBtn = document.getElementById('display-btn');
     const muteBtn = document.getElementById('mute-btn');
+    const standbyBtn = document.getElementById('standby-btn');
     const muteLed = document.getElementById('mute-led');
-    const displayLed = document.querySelector('.utility-buttons .led.green.active'); // La led de l'écran
+    const displayLed = document.querySelector('.utility-buttons .led.green.active');
 
     // --- FONCTION DE CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
@@ -41,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusLine.innerText = displayName;
                 infoLine.innerText = `TRACK ${index + 1} / ${playlist.length}`;
                 
-                // Si le bouton play était actif (vert), on lance la lecture automatiquement
                 if (playPauseBtn.classList.contains('active')) {
                     audio.play().catch(e => console.log("Lecture auto bloquée"));
                 }
@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTrack(currentIndex);
     });
 
-    // Enchaînement automatique à la fin du morceau
     audio.addEventListener('ended', () => {
         if (playlist.length > 0) {
             currentIndex = (currentIndex + 1) % playlist.length;
@@ -118,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LOGIQUE MUTE ---
     muteBtn.addEventListener('click', () => {
         audio.muted = !audio.muted;
-        muteLed.classList.toggle('active'); // Utilise maintenant l'ID mute-led
+        muteLed.classList.toggle('active');
         
         if (audio.muted) {
             infoLine.dataset.oldText = infoLine.innerText;
@@ -126,6 +125,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             infoLine.innerText = infoLine.dataset.oldText || "READY";
         }
+    });
+
+    // --- LOGIQUE STANDBY (RÉINITIALISATION) ---
+    standbyBtn.addEventListener('click', () => {
+        statusLine.innerText = "SHUTDOWN...";
+        infoLine.innerText = "REBOOTING";
+        
+        // Délai de 500ms pour simuler l'extinction avant refresh
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
     });
 
     // Initialisation

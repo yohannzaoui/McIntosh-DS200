@@ -192,8 +192,8 @@ body {
 }
 
 .btn-transport.active {
-    border-color: #22ff22;
-    box-shadow: inset 0 0 5px rgba(34, 255, 34, 0.2);
+    border-color: none;
+    box-shadow: none;
 }
 
 /* LEDS au-dessus des textes */
