@@ -90,17 +90,26 @@ body {
 }
 
 .track-counter { left: 30px; text-align: left; }
+
 .time-counter { right: 30px; text-align: right; }
+
 .volume-center {
+    position: absolute;
+    top: 25px;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
     color: #00ff00; /* Vert McIntosh */
+    z-index: 999;   /* Doit être au-dessus de tout */
+    pointer-events: none; /* Ne doit pas bloquer la souris */
+    display: block !important; /* Force l'existence de l'élément */
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
-.volume-center.visible { opacity: 1; }
+.volume-center.visible {
+    opacity: 1 !important;
+}
 
 .track-label, .time-label, .vol-label {
     font-size: 10px;
@@ -287,4 +296,11 @@ body {
     text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
+}
+
+.knob-container .label {
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    transition: color 0.3s ease;
 }

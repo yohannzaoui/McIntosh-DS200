@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const audio = document.getElementById('main-audio');
     const fileLoader = document.getElementById('file-loader');
     const statusLine = document.getElementById('status-line');
+    const infoLine = document.getElementById('info-line');
     const vfdDisplay = document.querySelector('.vfd-display');
     const volDisplay = document.getElementById('vol-display');
     const trackNumberDisplay = document.getElementById('track-number');
@@ -49,12 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
         analyser.fftSize = 64; 
         dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        // --- CORRECTION DU FLOU (HDPI) ---
         const dpr = window.devicePixelRatio || 1;
-        // On ajuste la taille interne du canvas au ratio de l'écran
         canvas.width = canvas.offsetWidth * dpr;
         canvas.height = canvas.offsetHeight * dpr;
-        // On scale le contexte pour pouvoir dessiner avec des unités logiques
         ctx.scale(dpr, dpr);
 
         draw();
@@ -65,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!analyser) return;
         analyser.getByteFrequencyData(dataArray);
 
-        // On utilise les dimensions réelles pour le calcul
         const logicalWidth = canvas.width / (window.devicePixelRatio || 1);
         const logicalHeight = canvas.height / (window.devicePixelRatio || 1);
         
@@ -73,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const barWidth = Math.floor((logicalWidth / dataArray.length) * 0.85);
         const segmentHeight = 4; 
-        const segmentGap = 1; // Espace réduit pour plus de densité
+        const segmentGap = 1; 
         const totalSegments = Math.floor(logicalHeight / (segmentHeight + segmentGap));
         
         let x = 0;
@@ -82,20 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const segmentsToFill = Math.floor(intensity * totalSegments);
 
             for (let j = 0; j < segmentsToFill; j++) {
-                // Utilisation de Math.floor pour éviter les demi-pixels (cause du flou)
                 const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
-                
-                let color = "#00ff00"; // VERT
+                let color = "#00ff00"; 
                 const percent = j / totalSegments;
-                if (percent > 0.85) color = "#ff0000";      // ROUGE
-                else if (percent > 0.65) color = "#ffaa00"; // ORANGE
+                if (percent > 0.85) color = "#ff0000";      
+                else if (percent > 0.65) color = "#ffaa00"; 
 
                 ctx.fillStyle = color;
-                
-                // Dessin du segment net
                 ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
-                
-                // Optionnel : un petit reflet interne pour l'effet "cristal"
                 ctx.fillStyle = "rgba(255,255,255,0.1)";
                 ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, 1);
             }
@@ -103,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- FONCTION DE CHARGEMENT DE PISTE ---
+    // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
             const file = playlist[index];
@@ -113,8 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
             trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
             timeDisplay.innerText = "00:00";
             statusLine.innerText = "READING TAGS...";
-            albumDisplay.innerText = "LOADING...";
-            artistDisplay.innerText = "LOADING...";
 
             jsmediatags.read(file, {
                 onSuccess: function(tag) {
@@ -127,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     artistDisplay.innerText = artist;
                     albumDisplay.innerText = album;
                 },
-                onError: function(error) {
+                onError: function() {
                     statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
                     artistDisplay.innerText = "DS200 PLAYER";
                     albumDisplay.innerText = "NO METADATA";
@@ -135,22 +124,43 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (playPauseBtn.classList.contains('active')) {
-                audio.play().catch(e => console.log("Lecture auto impossible"));
+                audio.play().catch(e => console.log("Lecture auto bloquée"));
             }
         }
     };
 
-    // --- LOGIQUE VOLUME (2%) ---
-    volumeKnob.addEventListener('click', (e) => {
+    // --- LOGIQUE AFFICHAGE VOLUME (VFD UNIQUEMENT) ---
+    const showVolumeOnVFD = () => {
+        if (vfdDisplay.classList.contains('power-off')) return;
+
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
-        
+        const currentVol = Math.round(audio.volume * 100);
+
+        if (audio.muted) {
+            volLabel.innerText = "STATUS";
+            volDisplay.innerText = "MUTE";
+        } else {
+            volLabel.innerText = "LEVEL";
+            volDisplay.innerText = `${currentVol}%`;
+        }
+
+        volContainer.classList.add('visible');
+
+        clearTimeout(volTimeout);
+        volTimeout = setTimeout(() => {
+            if (!audio.muted) {
+                volContainer.classList.remove('visible');
+            }
+        }, 1500);
+    };
+
+    // --- EVENTS VOLUME ---
+    volumeKnob.addEventListener('click', (e) => {
         if (audio.muted) {
             audio.muted = false;
             muteLed.classList.remove('active');
-            volLabel.innerText = "LEVEL";
         }
-
         const rect = volumeKnob.getBoundingClientRect();
         const x = e.clientX - rect.left;
         if (x < rect.width / 2) {
@@ -158,36 +168,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             audio.volume = Math.min(1, audio.volume + 0.02);
         }
-
-        volDisplay.innerText = `${Math.round(audio.volume * 100)}%`;
-        volContainer.classList.add('visible');
-
-        clearTimeout(volTimeout);
-        volTimeout = setTimeout(() => {
-            if (!audio.muted) volContainer.classList.remove('visible');
-        }, 2000);
+        showVolumeOnVFD();
     });
 
-    // --- LOGIQUE MUTE (VERT) ---
+    // Déclencheur au survol
+    volumeKnob.addEventListener('mouseenter', showVolumeOnVFD);
+
     muteBtn.addEventListener('click', () => {
         audio.muted = !audio.muted;
         muteLed.classList.toggle('active');
-        const volContainer = document.querySelector('.volume-center');
-        const volLabel = volContainer.querySelector('.vol-label');
-
-        if (audio.muted) {
-            volLabel.innerText = "STATUS";
-            volDisplay.innerText = "MUTE";
-            volContainer.classList.add('visible');
-            clearTimeout(volTimeout);
-        } else {
-            volLabel.innerText = "LEVEL";
-            volDisplay.innerText = `${Math.round(audio.volume * 100)}%`;
-            volTimeout = setTimeout(() => volContainer.classList.remove('visible'), 1000);
-        }
+        showVolumeOnVFD();
     });
 
-    // --- TRANSPORT & EVENTS ---
+    // --- TRANSPORT & NAVIGATION ---
     audio.addEventListener('timeupdate', () => {
         if (timeDisplay && !isNaN(audio.currentTime)) {
             const mins = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
@@ -199,42 +192,34 @@ document.addEventListener('DOMContentLoaded', () => {
     playPauseBtn.addEventListener('click', () => {
         if (!audio.src) return;
         initVisualizer(); 
-
         if (audio.paused) {
             audio.play();
             playPauseBtn.classList.add('active');
-            statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>'; // Affiche PLAY
+            statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
         } else {
             audio.pause();
             playPauseBtn.classList.remove('active');
-            statusIcon.innerHTML = '<i class="fa-solid fa-pause"></i>'; // Affiche PAUSE
+            statusIcon.innerHTML = '<i class="fa-solid fa-pause"></i>';
         }
     });
 
     stopBtn.addEventListener('click', () => {
         audio.pause();
         audio.currentTime = 0;
-        
-        // Mise à jour du compteur de temps
-        if (timeDisplay) timeDisplay.innerText = "00:00";
-        
-        // Retrait de l'état actif du bouton Play
+        timeDisplay.innerText = "00:00";
         playPauseBtn.classList.remove('active');
-        
-        // AFFICHAGE DU SYMBOLE STOP (Carré)
-        // On utilise l'icône FontAwesome correspondante
         statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';
-        
-        // Optionnel : On peut vider le nom de la piste ou mettre "STOPPED"
-        infoLine.innerText = "STOPPED";
+        if (infoLine) infoLine.innerText = "STOPPED";
     });
 
     nextBtn.addEventListener('click', () => {
+        if (playlist.length === 0) return;
         currentIndex = (currentIndex + 1) % playlist.length;
         loadTrack(currentIndex);
     });
 
     prevBtn.addEventListener('click', () => {
+        if (playlist.length === 0) return;
         currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
         loadTrack(currentIndex);
     });
@@ -250,7 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(displayLed) displayLed.classList.toggle('active');
     });
 
-    standbyBtn.addEventListener('click', () => window.location.reload());
+    standbyBtn.addEventListener('click', () => {
+        statusLine.innerText = "SHUTDOWN...";
+        setTimeout(() => window.location.reload(), 500);
+    });
 
     audio.volume = 0.6;
 });
