@@ -568,3 +568,10 @@ body {
     font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
+
+.gold-text {
+    color: #ffd700;
+    /* La couleur or de base */
+    text-transform: uppercase;
+    font-weight: normal;
+}
