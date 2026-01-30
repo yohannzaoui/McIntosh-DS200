@@ -1,6 +1,20 @@
+:root {
+    --mc-green: #22ff22;
+    --mc-blue: #33ccff;
+    --mc-gold: #ffd700;
+    --mc-dark: #1a1a1a;
+    --mc-light: #c2c2c2;
+    --mc-red: #ff0000;
+    --vfd-background: #020502;
+    --vfd-off: #000;
+    --backgound-color: #3a3a3a;
+    --chassis-color: #000;
+}
+
+
 /* --- BASE --- */
 body {
-    background-color: #3a3a3a;
+    background-color: var(--backgound-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,7 +28,7 @@ body {
     display: flex;
     width: 1800px;
     height: 650px;
-    background: #000;
+    background: var(--chassis-color);
     border: 3px solid #1a1a1a;
     position: relative;
     box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
@@ -62,12 +76,12 @@ body {
 .vfd-display {
     width: 800px;
     height: 300px;
-    background: #020502;
-    border: 2px solid #111;
+    background: var(--vfd-background);
+    border: 3px solid #111;
     position: relative;
     display: flex;
     flex-direction: column;
-    color: #33ccff;
+    color: var(--mc-blue);
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
     font-size: 2.5rem;
@@ -78,7 +92,7 @@ body {
 }
 
 .vfd-display.power-off {
-    background: #000 !important;
+    background: var(--vfd-off) !important;
     border-color: #050505 !important;
     box-shadow: none !important;
 }
@@ -132,7 +146,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
-    color: #00ff00;
+    color: var(--mc-green);
     z-index: 999;
     pointer-events: none;
     display: block !important;
@@ -169,7 +183,7 @@ body {
     font-size: 2.2rem;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #33ccff;
+    color: var(--mc-blue);
     text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
     white-space: nowrap;
     overflow: hidden;
@@ -180,14 +194,14 @@ body {
 
 #meta-subline {
     font-size: 1rem;
-    color: #33ccff;
+    color: var(--mc-blue);
     opacity: 0.9;
     display: flex;
     gap: 10px;
 }
 
 .separator {
-    color: #00ff00;
+    color: var(--mc-green);
 }
 
 /* --- VU-MÈTRE --- */
@@ -213,7 +227,7 @@ body {
     justify-content: space-between;
     margin-top: 4px;
     font-size: 9px;
-    color: #33ccff;
+    color: var(--mc-blue);
     font-family: Arial, sans-serif;
     opacity: 0.6;
     padding: 0 5px;
@@ -255,7 +269,7 @@ body {
 }
 
 .label {
-    color: #22ff22;
+    color: var(--mc-green);
     font-size: 1.1rem;
     letter-spacing: 2px;
     margin-bottom: 15px;
@@ -299,7 +313,7 @@ body {
 }
 
 .btn-label, .standby-txt, .btn-label i {
-    color: #22ff22;
+    color: var(--mc-green);
     font-size: 10px !important;
     font-weight: bold;
     text-transform: uppercase;
@@ -337,13 +351,13 @@ body {
 }
 
 .led.green.active {
-    background: #22ff22;
-    box-shadow: 0 0 10px #22ff22;
+    background: var(--mc-green);
+    box-shadow: 0 0 10px var(--mc-green);
 }
 
 .led.red.active {
-    background: #ff0000;
-    box-shadow: 0 0 10px #ff0000;
+    background: var(--mc-red);
+    box-shadow: 0 0 10px var(--mc-red);
 }
 
 /* LIGNE GOLD */
@@ -362,11 +376,11 @@ body {
 .gold-line {
     flex-grow: 1;
     height: 1px;
-    background: #ffd700;
+    background: var(--mc-gold);
 }
 
 .streaming-txt {
-    color: #ffd700;
+    color: var(--mc-gold);
     text-transform: uppercase;
     font-weight: normal;
     font-size: small;
@@ -380,7 +394,7 @@ body {
 }
 
 #file-format {
-    color: #00ff00;
+    color: var(--mc-green);
     font-family: 'Orbitron', sans-serif;
     font-size: 0.7rem;
     opacity: 0.8;
@@ -388,7 +402,7 @@ body {
 }
 
 #bitrate-display {
-    color: #00ff00;
+    color: var(--mc-green);
     font-family: 'Orbitron', sans-serif;
     font-size: 0.6rem;
     opacity: 0.6;
@@ -421,7 +435,7 @@ body {
     width: 480px;
     height: 480px;
     object-fit: cover;
-    border: 1px solid #00ff00;
+    border: 1px solid var(--mc-green);
     display: block;
     margin: 15px auto;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
@@ -430,7 +444,7 @@ body {
 .status-symbol {
     font-size: 1.0rem;
     /* Réduis ou augmente cette valeur (ex: 1.2rem, 18px, etc.) */
-    color: #00ff00;
+    color: var(--mc-green);
 
     line-height: 1;
     /* Assure que le symbole ne pousse pas la ligne vers le haut */
@@ -448,15 +462,15 @@ body {
 }
 
 .tone-label {
-    color: #ffd700; /* Gold McIntosh */
+    color: var(--mc-gold);
     font-size: 0.9rem;
     letter-spacing: 2px;
 }
 
 .opt-btn {
     background: #111;
-    border: 1px solid #33ccff;
-    color: #33ccff;
+    border: 1px solid var(--mc-blue);
+    color: var(--mc-blue);
     padding: 8px 12px;
     font-size: 10px;
     cursor: pointer;
@@ -465,14 +479,14 @@ body {
 }
 
 .opt-btn:hover {
-    background: #33ccff;
+    background: var(--mc-blue);
     color: #000;
 }
 
 .reset-btn {
     width: 100%;
-    border-color: #ffd700;
-    color: #ffd700;
+    border-color: var(--mc-gold);
+    color: var(--mc-gold);
 }
 
 .options-menu {
@@ -500,7 +514,7 @@ body {
 }
 
 .tone-main-label {
-    color: #ffd700; /* Gold McIntosh */
+    color: var(--mc-gold);
     font-size: 12px;
     font-weight: bold;
     letter-spacing: 3px;
@@ -550,27 +564,27 @@ body {
 
 #random-indicator {
     font-family: 'Roboto', sans-serif;
-    color: #33ccff; /* La couleur bleue McIntosh de ton format */
+    color: var(--mc-blue); /* La couleur bleue McIntosh de ton format */
     font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
 #repeat-indicator {
     font-family: 'Roboto', sans-serif;
-    color: #33ccff; /* La couleur bleue McIntosh de ton format */
+    color: var(--mc-blue); /* La couleur bleue McIntosh de ton format */
     font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
 #ab-indicator {
     font-family: 'Roboto', sans-serif;
-    color: #33ccff; /* La couleur bleue McIntosh de ton format */
+    color: var(--mc-blue); /* La couleur bleue McIntosh de ton format */
     font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
 .gold-text {
-    color: #ffd700;
+    color: var(--mc-gold);
     /* La couleur or de base */
     text-transform: uppercase;
     font-weight: normal;

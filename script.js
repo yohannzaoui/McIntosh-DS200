@@ -134,10 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const segmentsToFill = Math.floor(intensity * totalSegments);
             for (let j = 0; j < segmentsToFill; j++) {
                 const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
-                let color = "#00ff00"; 
+                let color = "#33ccff"; 
                 const percent = j / totalSegments;
-                if (percent > 0.85) color = "#ff0000";      
-                else if (percent > 0.65) color = "#ffaa00"; 
+                if (percent > 0.75) color = "#ff0000";      
+                else if (percent > 0.55) color = "#ffaa00"; 
                 ctx.fillStyle = color;
                 ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
                 ctx.fillStyle = "rgba(255,255,255,0.1)";
@@ -586,5 +586,5 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => window.location.reload(), 500);
     });
 
-    audio.volume = 0.6;
+    audio.volume = 0.2;
 });
