@@ -268,11 +268,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         currentCoverData = `data:${format};base64,${window.btoa(base64String)}`;
                     }
+
+                    // Mise à jour Media Session
+                    updateMediaSession(title, artist, album, currentCoverData);
                 },
                 onError: function() {
-                    statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                    const title = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                    statusLine.innerText = title;
                     artistDisplay.innerText = "DS200 PLAYER";
                     albumDisplay.innerText = "NO METADATA";
+                    
+                    // Mise à jour Media Session même sans métadonnées
+                    updateMediaSession(title, "DS200 PLAYER", "NO METADATA", null);
                 }
             });
 
