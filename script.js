@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalImg = document.getElementById('cover-art-full');
     const closeModal = document.querySelector('.close-modal');
 
+    // --- SÉLECTEURS PLAYLIST POPUP ---
+    const playlistModal = document.getElementById('playlist-modal');
+    const playlistItems = document.getElementById('playlist-items');
+    const closePlaylist = document.querySelector('.close-playlist');
+
     // Playlist state
     let playlist = [];
     let currentIndex = 0;
@@ -42,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- VARIABLES AVANCE/RETOUR RAPIDE ---
     let seekInterval;
     let isSeeking = false;
-    const SEEK_STEP = 3; // Secondes à sauter par itération
+    const SEEK_STEP = 3; 
 
     // --- VISUALISEUR (VU-MÈTRE) ---
     const canvas = document.getElementById('vfd-visualizer');
@@ -161,8 +166,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const stopSeeking = () => {
         clearInterval(seekInterval);
-        setTimeout(() => isSeeking = false, 50); // Petit délai pour éviter le clic simultané
+        setTimeout(() => isSeeking = false, 50); 
     };
+
+    // --- POPUP PLAYLIST (AU CLIC SUR LE COMPTEUR) ---
+    trackNumberDisplay.style.cursor = "pointer";
+    trackNumberDisplay.addEventListener('click', () => {
+        if (playlist.length === 0) return;
+        
+        playlistItems.innerHTML = "";
+        playlist.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.style.padding = "10px";
+            li.style.borderBottom = "1px solid #111";
+            li.style.cursor = "pointer";
+            
+            if (index === currentIndex) {
+                li.style.color = "#00ff00";
+                li.innerHTML = `▶ ${index + 1}. ${file.name.toUpperCase()}`;
+            } else {
+                li.style.color = "#33ccff";
+                li.innerText = `${index + 1}. ${file.name.toUpperCase()}`;
+            }
+
+            li.onclick = () => {
+                currentIndex = index;
+                loadTrack(currentIndex);
+                playlistModal.style.display = "none";
+            };
+            playlistItems.appendChild(li);
+        });
+        playlistModal.style.display = "block";
+    });
+
+    if (closePlaylist) closePlaylist.onclick = () => playlistModal.style.display = "none";
 
     // --- EVENTS TRANSPORT ---
     nextBtn.addEventListener('mousedown', () => {
@@ -198,7 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (closeModal) closeModal.onclick = () => modal.style.display = "none";
-    window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
+    window.onclick = (event) => { 
+        if (event.target == modal) modal.style.display = "none"; 
+        if (event.target == playlistModal) playlistModal.style.display = "none";
+    };
 
     const showVolumeOnVFD = () => {
         if (vfdDisplay.classList.contains('power-off')) return;

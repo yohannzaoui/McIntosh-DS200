@@ -372,3 +372,18 @@ body {
     font-weight: 300;
     font-size: 1.4rem;
 }
+
+.gold-text {
+    color: #ffd700; /* Gold pur */
+    font-weight: normal;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); /* Léger éclat */
+    text-transform: uppercase;
+}
+
+/* Optionnel : pour un look plus "laiton" ou métal brossé */
+.gold-text {
+    background: linear-gradient(to bottom, #cfb53b 0%, #ffd700 50%, #cfb53b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
