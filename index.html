@@ -56,7 +56,7 @@
                                 <div id="file-format"
                                     style="color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; opacity: 0.8; text-transform: uppercase;">---</div>
                                 <div id="bitrate-display"
-                                    style="color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; opacity: 0.8; text-transform: uppercase;">***</div>
+                                    style="color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; opacity: 0.8; text-transform: uppercase;">---</div>
                             </div>
                         </div>
 
@@ -68,7 +68,7 @@
                         <div class="time-counter">
                             <div class="time-label">MIN:SEC</div>
                             <div class="time-wrapper">
-                                <span id="random-indicator" style="display: none; margin-right: 10px;">RANDOM</span><span id="status-icon"
+                                <span id="ab-indicator" style="display: none; margin-right: 10px;"></span><span id="repeat-indicator" style="display: none; margin-right: 10px;"></span><span id="random-indicator" style="display: none; margin-right: 10px;">RANDOM</span><span id="status-icon"
                                     class="status-symbol"></span>
                                 <div id="time-display">00:00</div>
                             </div>
@@ -77,9 +77,9 @@
                         <div class="display-content">
                             <div id="status-line">NO MEDIA</div>
                             <div id="meta-subline">
-                                <span id="album-name">ALBUM</span>
+                                <span id="album-name">- - - - -</span>
                                 <span class="separator"> - </span>
-                                <span id="artist-name">ARTIST</span>
+                                <span id="artist-name">- - - - -</span>
                             </div>
                         </div>
 
@@ -201,7 +201,7 @@
     <div class="options-row">
         <div class="btn-wrapper">
             <span class="btn-label">TONE RESET</span>
-            <button class="btn-round standby" id="tone-reset"></button>
+            <button class="btn-round standby" id="tone-reset-btn"></button>
         </div>
     </div>
 
