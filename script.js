@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const artistDisplay = document.getElementById('artist-name');
     const statusIcon = document.getElementById('status-icon');  
     const randomIndicator = document.getElementById('random-indicator'); 
-    const repeatIndicator = document.getElementById('repeat-indicator'); // Indicateur VFD
+    const repeatIndicator = document.getElementById('repeat-indicator'); 
+    const abIndicator = document.getElementById('ab-indicator'); // Nouvel indicateur A-B
     const modal = document.getElementById('cover-modal');
     const modalImg = document.getElementById('cover-art-full');
     const closeModal = document.querySelector('.close-modal');
@@ -31,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let repeatMode = 0; // 0: OFF, 1: REPEAT 1, 2: REPEAT ALL
     let isRandomMode = false;
     let isTimeRemaining = false;
+
+    // A-B Loop State
+    let abPointA = null;
+    let abPointB = null;
 
     // Boutons Rotatifs
     const inputKnob = document.getElementById('input-knob');
@@ -55,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsPopup = document.getElementById('options-popup');
     const randomBtn = document.getElementById('random-btn');
     const repeatBtn = document.getElementById('repeat-btn');
+    const abBtn = document.getElementById('ab-btn'); // Bouton A-B
 
     // --- VARIABLES AVANCE/RETOUR RAPIDE ---
     let seekInterval;
@@ -116,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
+            resetABLoop(); // On annule la boucle A-B au changement de piste
             const file = playlist[index];
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
@@ -185,8 +192,50 @@ document.addEventListener('DOMContentLoaded', () => {
         return (currentIndex + 1) % playlist.length;
     };
 
+    // --- GESTION A-B LOOP ---
+    const resetABLoop = () => {
+        abPointA = null;
+        abPointB = null;
+        if (abIndicator) abIndicator.style.display = "none";
+        if (abBtn) abBtn.style.boxShadow = "none";
+    };
+
+    if (abBtn) {
+        abBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!audio.src || audio.paused && audio.currentTime === 0) return;
+
+            if (abPointA === null) {
+                // Premier clic : définit le point A
+                abPointA = audio.currentTime;
+                if (abIndicator) {
+                    abIndicator.innerText = "A-";
+                    abIndicator.style.display = "inline";
+                }
+                abBtn.style.boxShadow = "0 0 15px #ffaa00";
+            } else if (abPointB === null) {
+                // Deuxième clic : définit le point B
+                if (audio.currentTime > abPointA) {
+                    abPointB = audio.currentTime;
+                    if (abIndicator) abIndicator.innerText = "A-B";
+                    abBtn.style.boxShadow = "0 0 25px #ffaa00";
+                }
+            } else {
+                // Troisième clic : reset
+                resetABLoop();
+            }
+        });
+    }
+
     // --- GESTION DU TEMPS ET LECTURE AUTOMATIQUE ---
     audio.addEventListener('timeupdate', () => {
+        // Logique de boucle A-B
+        if (abPointA !== null && abPointB !== null) {
+            if (audio.currentTime >= abPointB) {
+                audio.currentTime = abPointA;
+            }
+        }
+
         if (timeDisplay && !isNaN(audio.currentTime) && !isNaN(audio.duration)) {
             let timeToShow;
             let prefix = isTimeRemaining ? "-" : ""; 
@@ -203,16 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     audio.addEventListener('ended', () => {
         if (repeatMode === 1) {
-            // Répéter un seul fichier
             audio.currentTime = 0;
             audio.play();
         } else if (repeatMode === 2) {
-            // Répéter toute la liste
             currentIndex = getNextIndex();
             loadTrack(currentIndex);
             audio.play();
         } else {
-            // Pas de repeat : s'arrêter à la fin de la playlist sauf si Random est actif
             if (currentIndex < playlist.length - 1 || isRandomMode) {
                 currentIndex = getNextIndex();
                 loadTrack(currentIndex);
@@ -316,8 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (repeatBtn) {
         repeatBtn.addEventListener('click', () => {
-            repeatMode = (repeatMode + 1) % 3; // 0 -> 1 -> 2 -> 0
-            
+            repeatMode = (repeatMode + 1) % 3;
             if (repeatMode === 0) {
                 repeatBtn.style.boxShadow = "none";
                 if (repeatIndicator) repeatIndicator.style.display = "none";
@@ -328,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     repeatIndicator.style.display = "inline";
                 }
             } else if (repeatMode === 2) {
-                repeatBtn.style.boxShadow = "0 0 25px #33ccff"; // Ombre plus forte pour 'ALL'
+                repeatBtn.style.boxShadow = "0 0 25px #33ccff";
                 if (repeatIndicator) {
                     repeatIndicator.innerText = "REPEAT ALL";
                     repeatIndicator.style.display = "inline";
@@ -418,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stopBtn.addEventListener('click', () => {
         audio.pause();
         audio.currentTime = 0;
+        resetABLoop();
         timeDisplay.innerText = isTimeRemaining ? "-00:00" : "00:00";
         playPauseBtn.classList.remove('active');
         statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';

@@ -561,3 +561,10 @@ body {
     font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
+
+#ab-indicator {
+    font-family: 'Roboto', sans-serif;
+    color: #33ccff; /* La couleur bleue McIntosh de ton format */
+    font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
+    text-transform: uppercase;
+}
