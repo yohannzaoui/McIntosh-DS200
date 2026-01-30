@@ -51,9 +51,11 @@ body {
 
 .main-controls {
     display: flex;
-    width: 100%;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 /* --- ÉCRAN VFD --- */
@@ -81,7 +83,6 @@ body {
     box-shadow: none !important;
 }
 
-/* On cache tout le contenu à l'intérieur quand c'est éteint */
 .vfd-display.power-off * {
     opacity: 0 !important;
     transition: opacity 0.2s ease;
@@ -110,6 +111,19 @@ body {
 .time-counter {
     right: 30px;
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    /* Aligne le label et le compteur à droite */
+}
+
+.time-wrapper {
+    display: flex;
+    flex-direction: row;
+    /* Aligne le temps et le symbole sur la même ligne */
+    align-items: baseline;
+    gap: 15px;
+    /* Espace entre le chrono et le symbole */
 }
 
 .volume-center {
@@ -207,9 +221,12 @@ body {
 
 /* --- BOUTONS ROTATIFS --- */
 .knob-container {
+    width: 350px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .knob-outer {
@@ -251,52 +268,26 @@ body {
     text-align: center;
 }
 
-/* --- BOUTONS DU BAS --- */
+/* --- BOUTONS DU BAS (CENTRE ET ALIGNEMENT) --- */
 .bottom-row {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: flex-end;
     padding: 0 20px 25px 20px;
+    box-sizing: border-box;
 }
 
-/* BLOC TRANSPORT : Positionné en relatif pour la ligne absolue */
-.transport-buttons {
+/* On donne la même largeur que les knob-containers pour l'alignement vertical */
+.transport-buttons, .utility-buttons {
     display: flex;
-    gap: 30px;
+    gap: 20px;
+    justify-content: center;
+    /* Centre les petits boutons à l'intérieur de la zone du Knob */
     align-items: flex-end;
     position: relative;
-    /* Permet à la ligne de se baser sur ce conteneur */
-}
-
-/* Ligne "Streaming Controls" : AUCUN IMPACT SUR LES BOUTONS */
-.streaming-label-container {
-    position: absolute;
-    width: 100%;
-    bottom: -30px;
-    /* Place la ligne sous les boutons */
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    pointer-events: none;
-    /* Ne gêne pas le clic */
-}
-
-.gold-line {
-    flex-grow: 1;
-    height: 1px;
-    /* Épaisseur d'un seul pixel */
-    background: #ffd700;
-    /* Couleur or solide (identique à PUSH) */
-
-}
-
-.utility-buttons {
-    display: flex;
-    gap: 30px;
-    align-items: flex-end;
+    width: 350px;
+    /* Doit être identique à .knob-container */
 }
 
 .btn-wrapper {
@@ -304,6 +295,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    width: 70px;
 }
 
 .btn-label, .standby-txt, .btn-label i {
@@ -354,30 +346,27 @@ body {
     box-shadow: 0 0 10px #ff0000;
 }
 
-.time-wrapper {
+/* LIGNE GOLD */
+.streaming-label-container {
+    position: absolute;
+    width: 100%;
+    bottom: -30px;
+    left: 0;
     display: flex;
-    align-items: baseline;
-    justify-content: flex-end;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    pointer-events: none;
 }
 
-.status-symbol {
-    font-size: 1.2rem;
-    color: #00ff00;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
-}
-
-/* --- TEXTES GOLD --- */
-.gold-text {
-    color: #ffd700;
-    /* La couleur or de base */
-    text-transform: uppercase;
-    font-weight: normal;
+.gold-line {
+    flex-grow: 1;
+    height: 1px;
+    background: #ffd700;
 }
 
 .streaming-txt {
     color: #ffd700;
-    /* La couleur or de base */
     text-transform: uppercase;
     font-weight: normal;
     font-size: small;
@@ -388,6 +377,21 @@ body {
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
     font-size: 1.4rem;
+}
+
+#file-format {
+    color: #00ff00;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+#bitrate-display {
+    color: #00ff00;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    opacity: 0.6;
 }
 
 /* MODAL */
@@ -414,11 +418,20 @@ body {
 }
 
 #cover-art-full {
-    width: 480px;      /* Largeur réduite (ajuste ici si c'est encore trop grand) */
-    height: 480px;     /* Garde un format carré */
-    object-fit: cover; /* Évite de déformer l'image si elle n'est pas carrée */
-    border: 1px solid #00ff00; /* Rappel du vert McIntosh */
-    display: block;    /* Permet le centrage avec margin */
-    margin: 15px auto; /* Centre l'image et ajoute de l'espace autour */
+    width: 480px;
+    height: 480px;
+    object-fit: cover;
+    border: 1px solid #00ff00;
+    display: block;
+    margin: 15px auto;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.status-symbol {
+    font-size: 1.0rem;
+    /* Réduis ou augmente cette valeur (ex: 1.2rem, 18px, etc.) */
+    color: #00ff00;
+
+    line-height: 1;
+    /* Assure que le symbole ne pousse pas la ligne vers le haut */
 }
