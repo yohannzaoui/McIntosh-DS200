@@ -14,10 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusIcon = document.getElementById('status-icon');  
     const randomIndicator = document.getElementById('random-indicator'); 
     const repeatIndicator = document.getElementById('repeat-indicator'); 
-    const abIndicator = document.getElementById('ab-indicator'); // Nouvel indicateur A-B
+    const abIndicator = document.getElementById('ab-indicator'); 
     const modal = document.getElementById('cover-modal');
     const modalImg = document.getElementById('cover-art-full');
     const closeModal = document.querySelector('.close-modal');
+
+    // --- NOUVEAUX SÉLECTEURS TONALITÉ ---
+    const bassMinus = document.getElementById('bass-minus');
+    const bassPlus = document.getElementById('bass-plus');
+    const trebleMinus = document.getElementById('treble-minus');
+    const treblePlus = document.getElementById('treble-plus');
+    const toneResetBtn = document.getElementById('tone-reset-btn');
 
     // --- SÉLECTEURS PLAYLIST POPUP ---
     const playlistModal = document.getElementById('playlist-modal');
@@ -29,13 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIndex = 0;
     let volTimeout;
     let currentCoverData = null; 
-    let repeatMode = 0; // 0: OFF, 1: REPEAT 1, 2: REPEAT ALL
+    let repeatMode = 0; 
     let isRandomMode = false;
     let isTimeRemaining = false;
 
     // A-B Loop State
     let abPointA = null;
     let abPointB = null;
+
+    // --- ÉTAT TONALITÉ ---
+    let bassLevel = 0;
+    let trebleLevel = 0;
+    let bassFilter, trebleFilter;
 
     // Boutons Rotatifs
     const inputKnob = document.getElementById('input-knob');
@@ -60,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsPopup = document.getElementById('options-popup');
     const randomBtn = document.getElementById('random-btn');
     const repeatBtn = document.getElementById('repeat-btn');
-    const abBtn = document.getElementById('ab-btn'); // Bouton A-B
+    const abBtn = document.getElementById('ab-btn'); 
 
     // --- VARIABLES AVANCE/RETOUR RAPIDE ---
     let seekInterval;
@@ -77,8 +89,24 @@ document.addEventListener('DOMContentLoaded', () => {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
         source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
+
+        // --- CONFIGURATION FILTRES TONALITÉ ---
+        bassFilter = audioCtx.createBiquadFilter();
+        bassFilter.type = "lowshelf";
+        bassFilter.frequency.value = 200; 
+        bassFilter.gain.value = bassLevel;
+
+        trebleFilter = audioCtx.createBiquadFilter();
+        trebleFilter.type = "highshelf";
+        trebleFilter.frequency.value = 3000; 
+        trebleFilter.gain.value = trebleLevel;
+
+        // Chaînage : Source -> Basses -> Aigus -> Analyseur -> Destination
+        source.connect(bassFilter);
+        bassFilter.connect(trebleFilter);
+        trebleFilter.connect(analyser);
         analyser.connect(audioCtx.destination);
+
         analyser.fftSize = 64; 
         dataArray = new Uint8Array(analyser.frequencyBinCount);
 
@@ -119,10 +147,65 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- FONCTION AFFICHAGE TONALITÉ SUR VFD ---
+    const showToneOnVFD = (label, value) => {
+        if (vfdDisplay.classList.contains('power-off')) return;
+        const volContainer = document.querySelector('.volume-center');
+        const volLabel = volContainer.querySelector('.vol-label');
+        volLabel.innerText = label;
+        
+        if (label === "TONE" && value === 0) {
+            volDisplay.innerText = "FLAT";
+        } else {
+            volDisplay.innerText = `${value > 0 ? "+" : ""}${value}dB`;
+        }
+
+        volContainer.classList.add('visible');
+        clearTimeout(volTimeout);
+        volTimeout = setTimeout(() => { if (!audio.muted) volContainer.classList.remove('visible'); }, 1500);
+    };
+
+    // --- ÉCOUTEURS TONALITÉ ---
+    bassMinus?.addEventListener('click', () => {
+        initVisualizer();
+        bassLevel = Math.max(-10, bassLevel - 2);
+        if (bassFilter) bassFilter.gain.value = bassLevel;
+        showToneOnVFD("BASS", bassLevel);
+    });
+
+    bassPlus?.addEventListener('click', () => {
+        initVisualizer();
+        bassLevel = Math.min(10, bassLevel + 2);
+        if (bassFilter) bassFilter.gain.value = bassLevel;
+        showToneOnVFD("BASS", bassLevel);
+    });
+
+    trebleMinus?.addEventListener('click', () => {
+        initVisualizer();
+        trebleLevel = Math.max(-10, trebleLevel - 2);
+        if (trebleFilter) trebleFilter.gain.value = trebleLevel;
+        showToneOnVFD("TREBLE", trebleLevel);
+    });
+
+    treblePlus?.addEventListener('click', () => {
+        initVisualizer();
+        trebleLevel = Math.min(10, trebleLevel + 2);
+        if (trebleFilter) trebleFilter.gain.value = trebleLevel;
+        showToneOnVFD("TREBLE", trebleLevel);
+    });
+
+    toneResetBtn?.addEventListener('click', () => {
+        initVisualizer();
+        bassLevel = 0; trebleLevel = 0;
+        if (bassFilter) bassFilter.gain.value = 0;
+        if (trebleFilter) trebleFilter.gain.value = 0;
+        showToneOnVFD("TONE", 0);
+    });
+
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
-            resetABLoop(); // On annule la boucle A-B au changement de piste
+            resetABLoop(); 
             const file = playlist[index];
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
@@ -180,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- LOGIQUE DE NAVIGATION (NEXT / RANDOM) ---
     const getNextIndex = () => {
         if (isRandomMode && playlist.length > 1) {
             let nextIndex;
@@ -192,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return (currentIndex + 1) % playlist.length;
     };
 
-    // --- GESTION A-B LOOP ---
     const resetABLoop = () => {
         abPointA = null;
         abPointB = null;
@@ -206,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!audio.src || audio.paused && audio.currentTime === 0) return;
 
             if (abPointA === null) {
-                // Premier clic : définit le point A
                 abPointA = audio.currentTime;
                 if (abIndicator) {
                     abIndicator.innerText = "A-";
@@ -214,22 +294,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 abBtn.style.boxShadow = "0 0 15px #ffaa00";
             } else if (abPointB === null) {
-                // Deuxième clic : définit le point B
                 if (audio.currentTime > abPointA) {
                     abPointB = audio.currentTime;
                     if (abIndicator) abIndicator.innerText = "A-B";
                     abBtn.style.boxShadow = "0 0 25px #ffaa00";
                 }
             } else {
-                // Troisième clic : reset
                 resetABLoop();
             }
         });
     }
 
-    // --- GESTION DU TEMPS ET LECTURE AUTOMATIQUE ---
     audio.addEventListener('timeupdate', () => {
-        // Logique de boucle A-B
         if (abPointA !== null && abPointB !== null) {
             if (audio.currentTime >= abPointB) {
                 audio.currentTime = abPointA;
@@ -270,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- CLIC SUR COMPTEUR TEMPS ---
     timeDisplay.style.cursor = "pointer";
     timeDisplay.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -279,7 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
         audio.dispatchEvent(event);
     });
 
-    // --- LOGIQUE AVANCE/RETOUR RAPIDE ---
     const startSeeking = (direction) => {
         if (!audio.src) return;
         isSeeking = true;
@@ -297,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => isSeeking = false, 50); 
     };
 
-    // --- POPUP PLAYLIST ---
     trackNumberDisplay.style.cursor = "pointer";
     trackNumberDisplay.addEventListener('click', () => {
         if (playlist.length === 0) return;
@@ -326,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (closePlaylist) closePlaylist.onclick = () => playlistModal.style.display = "none";
 
-    // --- EVENTS TRANSPORT ---
     nextBtn.addEventListener('mousedown', () => {
         const timer = setTimeout(() => startSeeking('forward'), 500);
         const clear = () => { clearTimeout(timer); stopSeeking(); nextBtn.removeEventListener('mouseup', clear); };
@@ -351,7 +423,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTrack(currentIndex);
     });
 
-    // --- POPUP OPTIONS LOGIQUE ---
     if (optionsBtn) {
         optionsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -392,7 +463,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- AUTRES HANDLERS ---
     statusLine.addEventListener('click', () => {
         if (currentCoverData) {
             modalImg.src = currentCoverData;
