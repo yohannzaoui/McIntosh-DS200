@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentIndex = 0;
     let volTimeout;
     let currentCoverData = null; 
+    let isRepeatMode = false;
+    let isRandomMode = false;
 
     // Boutons Rotatifs
     const inputKnob = document.getElementById('input-knob');
@@ -43,8 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const standbyBtn = document.getElementById('standby-btn');
     const muteLed = document.getElementById('mute-led');
     
-    // Sélecteur dynamique pour la LED Display (cherche la LED dans le même wrapper)
+    // Sélecteur dynamique pour la LED Display
     const displayLed = displayBtn.parentElement.querySelector('.led');
+
+    // --- POPUP OPTIONS ---
+    const optionsBtn = document.getElementById('options-toggle');
+    const optionsPopup = document.getElementById('options-popup');
+    const randomBtn = document.getElementById('random-btn');
+    const repeatBtn = document.getElementById('repeat-btn');
 
     // --- VARIABLES AVANCE/RETOUR RAPIDE ---
     let seekInterval;
@@ -105,64 +113,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
-    if (playlist.length > 0 && playlist[index]) {
-        const file = playlist[index];
-        const fileURL = URL.createObjectURL(file);
-        audio.src = fileURL;
-        
-        const bitrateDisplay = document.getElementById('bitrate-display');
-        if (bitrateDisplay) bitrateDisplay.innerText = "---"; // État d'attente
+        if (playlist.length > 0 && playlist[index]) {
+            const file = playlist[index];
+            const fileURL = URL.createObjectURL(file);
+            audio.src = fileURL;
+            
+            const bitrateDisplay = document.getElementById('bitrate-display');
+            if (bitrateDisplay) bitrateDisplay.innerText = "---"; 
 
-        if (formatDisplay) {
-            const extension = file.name.split('.').pop().toUpperCase();
-            formatDisplay.innerText = extension;
-        }
-
-        trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
-        timeDisplay.innerText = "00:00";
-        statusLine.innerText = "READING TAGS...";
-        currentCoverData = null; 
-
-        // --- CALCUL DU BITRATE (Attendre que le fichier soit chargé) ---
-        audio.onloadedmetadata = () => {
-            if (bitrateDisplay && audio.duration) {
-                const kbps = Math.floor((file.size * 8) / audio.duration / 1000);
-                bitrateDisplay.innerText = `${kbps} KBPS`;
+            if (formatDisplay) {
+                const extension = file.name.split('.').pop().toUpperCase();
+                formatDisplay.innerText = extension;
             }
-        };
 
-        jsmediatags.read(file, {
-            onSuccess: function(tag) {
-                const tags = tag.tags;
-                const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-                const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
-                const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
+            trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
+            timeDisplay.innerText = "00:00";
+            statusLine.innerText = "READING TAGS...";
+            currentCoverData = null; 
 
-                statusLine.innerText = title;
-                artistDisplay.innerText = artist;
-                albumDisplay.innerText = album;
-
-                if (tags.picture) {
-                    const { data, format } = tags.picture;
-                    let base64String = "";
-                    for (let i = 0; i < data.length; i++) {
-                        base64String += String.fromCharCode(data[i]);
-                    }
-                    currentCoverData = `data:${format};base64,${window.btoa(base64String)}`;
+            audio.onloadedmetadata = () => {
+                if (bitrateDisplay && audio.duration) {
+                    const kbps = Math.floor((file.size * 8) / audio.duration / 1000);
+                    bitrateDisplay.innerText = `${kbps} KBPS`;
                 }
-            },
-            onError: function() {
-                statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-                artistDisplay.innerText = "DS200 PLAYER";
-                albumDisplay.innerText = "NO METADATA";
-            }
-        });
+            };
 
-        if (playPauseBtn.classList.contains('active')) {
-            audio.play().catch(e => console.log("Lecture auto bloquée"));
+            jsmediatags.read(file, {
+                onSuccess: function(tag) {
+                    const tags = tag.tags;
+                    const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                    const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
+                    const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
+
+                    statusLine.innerText = title;
+                    artistDisplay.innerText = artist;
+                    albumDisplay.innerText = album;
+
+                    if (tags.picture) {
+                        const { data, format } = tags.picture;
+                        let base64String = "";
+                        for (let i = 0; i < data.length; i++) {
+                            base64String += String.fromCharCode(data[i]);
+                        }
+                        currentCoverData = `data:${format};base64,${window.btoa(base64String)}`;
+                    }
+                },
+                onError: function() {
+                    statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                    artistDisplay.innerText = "DS200 PLAYER";
+                    albumDisplay.innerText = "NO METADATA";
+                }
+            });
+
+            if (playPauseBtn.classList.contains('active')) {
+                audio.play().catch(e => console.log("Lecture auto bloquée"));
+            }
         }
-    }
-};
+    };
+
+    // --- LOGIQUE AUTOMATIQUE (FIN DE FICHIER) ---
+    audio.addEventListener('ended', () => {
+        if (isRepeatMode) {
+            audio.currentTime = 0;
+            audio.play();
+        } else if (isRandomMode) {
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * playlist.length);
+            } while (nextIndex === currentIndex && playlist.length > 1);
+            currentIndex = nextIndex;
+            loadTrack(currentIndex);
+            audio.play();
+        } else {
+            currentIndex = (currentIndex + 1) % playlist.length;
+            loadTrack(currentIndex);
+            audio.play();
+        }
+    });
 
     // --- LOGIQUE AVANCE/RETOUR RAPIDE ---
     const startSeeking = (direction) => {
@@ -186,14 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
     trackNumberDisplay.style.cursor = "pointer";
     trackNumberDisplay.addEventListener('click', () => {
         if (playlist.length === 0) return;
-        
         playlistItems.innerHTML = "";
         playlist.forEach((file, index) => {
             const li = document.createElement('li');
             li.style.padding = "10px";
             li.style.borderBottom = "1px solid #111";
             li.style.cursor = "pointer";
-            
             if (index === currentIndex) {
                 li.style.color = "#00ff00";
                 li.innerHTML = `▶ ${index + 1}. ${file.name.toUpperCase()}`;
@@ -201,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.style.color = "#33ccff";
                 li.innerText = `${index + 1}. ${file.name.toUpperCase()}`;
             }
-
             li.onclick = () => {
                 currentIndex = index;
                 loadTrack(currentIndex);
@@ -239,6 +263,29 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTrack(currentIndex);
     });
 
+    // --- POPUP OPTIONS LOGIQUE ---
+    if (optionsBtn) {
+        optionsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = optionsPopup.style.display === 'flex';
+            optionsPopup.style.display = isVisible ? 'none' : 'flex';
+        });
+    }
+
+    if (repeatBtn) {
+        repeatBtn.addEventListener('click', () => {
+            isRepeatMode = !isRepeatMode;
+            repeatBtn.style.boxShadow = isRepeatMode ? "0 0 15px #33ccff" : "none";
+        });
+    }
+
+    if (randomBtn) {
+        randomBtn.addEventListener('click', () => {
+            isRandomMode = !isRandomMode;
+            randomBtn.style.boxShadow = isRandomMode ? "0 0 15px #33ccff" : "none";
+        });
+    }
+
     // --- AUTRES HANDLERS ---
     statusLine.addEventListener('click', () => {
         if (currentCoverData) {
@@ -251,7 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.onclick = (event) => { 
         if (event.target == modal) modal.style.display = "none"; 
         if (event.target == playlistModal) playlistModal.style.display = "none";
+        if (event.target == optionsPopup) optionsPopup.style.display = "none";
     };
+
+    document.addEventListener('click', () => {
+        if(optionsPopup) optionsPopup.style.display = 'none';
+    });
+    if(optionsPopup) optionsPopup.addEventListener('click', (e) => e.stopPropagation());
 
     const showVolumeOnVFD = () => {
         if (vfdDisplay.classList.contains('power-off')) return;
@@ -323,15 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playlist.length > 0) { currentIndex = 0; loadTrack(currentIndex); }
     });
 
-    // --- FONCTION DISPLAY (ÉTEINDRE L'ÉCRAN) ---
     displayBtn.addEventListener('click', () => {
         vfdDisplay.classList.toggle('power-off');
-        if (displayLed) {
-            displayLed.classList.toggle('active');
-        }
+        if (displayLed) displayLed.classList.toggle('active');
     });
 
-    // --- FONCTION STANDBY ---
     standbyBtn.addEventListener('click', () => {
         statusLine.innerText = "SHUTDOWN...";
         setTimeout(() => window.location.reload(), 500);
@@ -339,22 +388,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     audio.volume = 0.6;
 });
-
-
-
-
-const optionsBtn = document.getElementById('options-toggle');
-const optionsPopup = document.getElementById('options-popup');
-
-optionsBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // Empêche la fermeture immédiate
-    const isVisible = optionsPopup.style.display === 'flex';
-    optionsPopup.style.display = isVisible ? 'none' : 'flex';
-});
-
-// Ferme le pop-up si on clique ailleurs sur le châssis
-document.addEventListener('click', () => {
-    optionsPopup.style.display = 'none';
-});
-
-optionsPopup.addEventListener('click', (e) => e.stopPropagation());
