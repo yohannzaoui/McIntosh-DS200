@@ -147,6 +147,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- MEDIA SESSION (CHROME/EDGE CONTROLS) ---
+    const updateMediaSession = (title, artist, album, cover) => {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                album: album,
+                artwork: cover ? [{ src: cover, sizes: '512x512', type: 'image/png' }] : []
+            });
+
+            navigator.mediaSession.setActionHandler('play', () => playPauseBtn.click());
+            navigator.mediaSession.setActionHandler('pause', () => playPauseBtn.click());
+            navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
+            navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
+            navigator.mediaSession.setActionHandler('seekbackward', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+            navigator.mediaSession.setActionHandler('seekforward', () => { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); });
+        }
+    };
+
     // --- FONCTION AFFICHAGE TONALITÉ SUR VFD ---
     const showToneOnVFD = (label, value) => {
         if (vfdDisplay.classList.contains('power-off')) return;
