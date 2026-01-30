@@ -547,3 +547,10 @@ body {
     align-items: center;
     width: 20px; /* Largeur fixe pour l'icône pour éviter tout mouvement */
 }
+
+#random-indicator {
+    font-family: 'Roboto', sans-serif;
+    color: #33ccff; /* La couleur bleue McIntosh de ton format */
+    font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
+    text-transform: uppercase;
+}

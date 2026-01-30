@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const albumDisplay = document.getElementById('album-name');
     const artistDisplay = document.getElementById('artist-name');
     const statusIcon = document.getElementById('status-icon');  
+    const randomIndicator = document.getElementById('random-indicator'); // Indicateur VFD
     const modal = document.getElementById('cover-modal');
     const modalImg = document.getElementById('cover-art-full');
     const closeModal = document.querySelector('.close-modal');
@@ -219,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
     timeDisplay.addEventListener('click', (e) => {
         e.stopPropagation();
         isTimeRemaining = !isTimeRemaining;
-        // Déclenche une mise à jour immédiate
         const event = new Event('timeupdate');
         audio.dispatchEvent(event);
     });
@@ -316,6 +316,10 @@ document.addEventListener('DOMContentLoaded', () => {
         randomBtn.addEventListener('click', () => {
             isRandomMode = !isRandomMode;
             randomBtn.style.boxShadow = isRandomMode ? "0 0 15px #33ccff" : "none";
+            // Mise à jour de l'affichage VFD
+            if (randomIndicator) {
+                randomIndicator.style.display = isRandomMode ? "inline" : "none";
+            }
         });
     }
 
