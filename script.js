@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (bassFilter) bassFilter.gain.value = bassLevel;
         showToneOnVFD("BASS", bassLevel);
     });
+    bassMinus?.addEventListener('mouseenter', () => showToneOnVFD("BASS", bassLevel));
 
     bassPlus?.addEventListener('click', () => {
         initVisualizer();
@@ -198,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (bassFilter) bassFilter.gain.value = bassLevel;
         showToneOnVFD("BASS", bassLevel);
     });
+    bassPlus?.addEventListener('mouseenter', () => showToneOnVFD("BASS", bassLevel));
 
     trebleMinus?.addEventListener('click', () => {
         initVisualizer();
@@ -205,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (trebleFilter) trebleFilter.gain.value = trebleLevel;
         showToneOnVFD("TREBLE", trebleLevel);
     });
+    trebleMinus?.addEventListener('mouseenter', () => showToneOnVFD("TREBLE", trebleLevel));
 
     treblePlus?.addEventListener('click', () => {
         initVisualizer();
@@ -212,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (trebleFilter) trebleFilter.gain.value = trebleLevel;
         showToneOnVFD("TREBLE", trebleLevel);
     });
+    treblePlus?.addEventListener('mouseenter', () => showToneOnVFD("TREBLE", trebleLevel));
 
     toneResetBtn?.addEventListener('click', () => {
         initVisualizer();
@@ -220,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (trebleFilter) trebleFilter.gain.value = 0;
         showToneOnVFD("TONE", 0);
     });
+    toneResetBtn?.addEventListener('mouseenter', () => showToneOnVFD("TONE", 0));
 
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
