@@ -586,5 +586,5 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => window.location.reload(), 500);
     });
 
-    audio.volume = 0.6;
+    audio.volume = 0.2;
 });
