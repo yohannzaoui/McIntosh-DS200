@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const vfdDisplay = document.querySelector('.vfd-display');
     const volDisplay = document.getElementById('vol-display');
     const trackNumberDisplay = document.getElementById('track-number');
-    const formatDisplay = document.getElementById('file-format'); // Nouveau sélecteur pour le format
+    const formatDisplay = document.getElementById('file-format');
     const timeDisplay = document.getElementById('time-display');
     const albumDisplay = document.getElementById('album-name');
     const artistDisplay = document.getElementById('artist-name');
@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const standbyBtn = document.getElementById('standby-btn');
     const muteLed = document.getElementById('mute-led');
     const displayLed = document.querySelector('.utility-buttons .led.green.active');
+
+    // --- VARIABLES AVANCE/RETOUR RAPIDE ---
+    let seekInterval;
+    let isSeeking = false;
+    const SEEK_STEP = 3; // Secondes à sauter par itération
 
     // --- VISUALISEUR (VU-MÈTRE) ---
     const canvas = document.getElementById('vfd-visualizer');
@@ -98,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
             
-            // AFFICHAGE DU FORMAT (Ex: MP3, FLAC)
             if (formatDisplay) {
                 const extension = file.name.split('.').pop().toUpperCase();
                 formatDisplay.innerText = extension;
@@ -142,8 +146,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- CLIC SUR LE TITRE -> POP-UP POCHETTE ---
-    statusLine.style.cursor = "pointer";
+    // --- LOGIQUE AVANCE/RETOUR RAPIDE ---
+    const startSeeking = (direction) => {
+        if (!audio.src) return;
+        isSeeking = true;
+        seekInterval = setInterval(() => {
+            if (direction === 'forward') {
+                audio.currentTime = Math.min(audio.duration, audio.currentTime + SEEK_STEP);
+            } else {
+                audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP);
+            }
+        }, 150);
+    };
+
+    const stopSeeking = () => {
+        clearInterval(seekInterval);
+        setTimeout(() => isSeeking = false, 50); // Petit délai pour éviter le clic simultané
+    };
+
+    // --- EVENTS TRANSPORT ---
+    nextBtn.addEventListener('mousedown', () => {
+        const timer = setTimeout(() => startSeeking('forward'), 500);
+        const clear = () => { clearTimeout(timer); stopSeeking(); nextBtn.removeEventListener('mouseup', clear); };
+        nextBtn.addEventListener('mouseup', clear);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (playlist.length === 0 || isSeeking) return;
+        currentIndex = (currentIndex + 1) % playlist.length;
+        loadTrack(currentIndex);
+    });
+
+    prevBtn.addEventListener('mousedown', () => {
+        const timer = setTimeout(() => startSeeking('backward'), 500);
+        const clear = () => { clearTimeout(timer); stopSeeking(); prevBtn.removeEventListener('mouseup', clear); };
+        prevBtn.addEventListener('mouseup', clear);
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (playlist.length === 0 || isSeeking) return;
+        currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+        loadTrack(currentIndex);
+    });
+
+    // --- AUTRES HANDLERS ---
     statusLine.addEventListener('click', () => {
         if (currentCoverData) {
             modalImg.src = currentCoverData;
@@ -151,14 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    if (closeModal) {
-        closeModal.onclick = () => modal.style.display = "none";
-    }
-    window.onclick = (event) => {
-        if (event.target == modal) modal.style.display = "none";
-    };
+    if (closeModal) closeModal.onclick = () => modal.style.display = "none";
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
 
-    // --- LOGIQUE AFFICHAGE VOLUME (VFD UNIQUEMENT) ---
     const showVolumeOnVFD = () => {
         if (vfdDisplay.classList.contains('power-off')) return;
         const volContainer = document.querySelector('.volume-center');
@@ -174,36 +215,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         volContainer.classList.add('visible');
         clearTimeout(volTimeout);
-        volTimeout = setTimeout(() => {
-            if (!audio.muted) volContainer.classList.remove('visible');
-        }, 1500);
+        volTimeout = setTimeout(() => { if (!audio.muted) volContainer.classList.remove('visible'); }, 1500);
     };
 
-    // --- EVENTS VOLUME ---
     volumeKnob.addEventListener('click', (e) => {
-        if (audio.muted) {
-            audio.muted = false;
-            muteLed.classList.remove('active');
-        }
+        if (audio.muted) { audio.muted = false; muteLed.classList.remove('active'); }
         const rect = volumeKnob.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        if (x < rect.width / 2) {
-            audio.volume = Math.max(0, audio.volume - 0.05); // Par pas de 5%
-        } else {
-            audio.volume = Math.min(1, audio.volume + 0.05);
-        }
+        audio.volume = (x < rect.width / 2) ? Math.max(0, audio.volume - 0.05) : Math.min(1, audio.volume + 0.05);
         showVolumeOnVFD();
     });
 
     volumeKnob.addEventListener('mouseenter', showVolumeOnVFD);
-
     muteBtn.addEventListener('click', () => {
         audio.muted = !audio.muted;
         muteLed.classList.toggle('active');
         showVolumeOnVFD();
     });
 
-    // --- NAVIGATION ---
     audio.addEventListener('timeupdate', () => {
         if (timeDisplay && !isNaN(audio.currentTime)) {
             const mins = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
@@ -232,19 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
         timeDisplay.innerText = "00:00";
         playPauseBtn.classList.remove('active');
         statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';
-        if (infoLine) infoLine.innerText = "STOPPED";
-    });
-
-    nextBtn.addEventListener('click', () => {
-        if (playlist.length === 0) return;
-        currentIndex = (currentIndex + 1) % playlist.length;
-        loadTrack(currentIndex);
-    });
-
-    prevBtn.addEventListener('click', () => {
-        if (playlist.length === 0) return;
-        currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-        loadTrack(currentIndex);
     });
 
     inputKnob.addEventListener('click', () => fileLoader.click());
