@@ -435,3 +435,91 @@ body {
     line-height: 1;
     /* Assure que le symbole ne pousse pas la ligne vers le haut */
 }
+
+
+
+.tone-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid #222;
+    padding-top: 10px;
+}
+
+.tone-label {
+    color: #ffd700; /* Gold McIntosh */
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+.opt-btn {
+    background: #111;
+    border: 1px solid #33ccff;
+    color: #33ccff;
+    padding: 8px 12px;
+    font-size: 10px;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s;
+}
+
+.opt-btn:hover {
+    background: #33ccff;
+    color: #000;
+}
+
+.reset-btn {
+    width: 100%;
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.options-menu {
+    display: none; 
+    position: absolute;
+    bottom: 110px; /* Positionné juste au-dessus de la ligne de boutons */
+    right: 40px;   /* Aligné avec le bloc de droite */
+    width: 320px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(51, 204, 255, 0.1);
+    z-index: 3000;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.options-row {
+    display: flex;
+    justify-content: center;
+    gap: 25px; /* Même espacement que tes boutons de châssis */
+    width: 100%;
+}
+
+.tone-main-label {
+    color: #ffd700; /* Gold McIntosh */
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.tone-separator-line {
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #ffd700, transparent);
+    opacity: 0.5;
+}
+
+/* On s'assure que les boutons dans le pop-up gardent leur taille */
+.options-menu .btn-round {
+    width: 55px;  /* Un peu plus petit pour le pop-up si besoin, sinon 65px */
+    height: 38px;
+}
+
+.options-menu .btn-label {
+    font-size: 9px !important;
+}

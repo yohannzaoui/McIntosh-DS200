@@ -339,3 +339,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     audio.volume = 0.6;
 });
+
+
+
+
+const optionsBtn = document.getElementById('options-toggle');
+const optionsPopup = document.getElementById('options-popup');
+
+optionsBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Empêche la fermeture immédiate
+    const isVisible = optionsPopup.style.display === 'flex';
+    optionsPopup.style.display = isVisible ? 'none' : 'flex';
+});
+
+// Ferme le pop-up si on clique ailleurs sur le châssis
+document.addEventListener('click', () => {
+    optionsPopup.style.display = 'none';
+});
+
+optionsPopup.addEventListener('click', (e) => e.stopPropagation());
