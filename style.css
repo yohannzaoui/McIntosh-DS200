@@ -310,7 +310,7 @@ body {
 
 .btn-transport, .btn-round {
     background: linear-gradient(180deg, #1a1a1a, #050505);
-    border: 1px solid #333;
+    border: 3px solid #2e2e2e;
     width: 65px;
     height: 45px;
     border-radius: 15px;
@@ -549,6 +549,13 @@ body {
 }
 
 #random-indicator {
+    font-family: 'Roboto', sans-serif;
+    color: #33ccff; /* La couleur bleue McIntosh de ton format */
+    font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
+    text-transform: uppercase;
+}
+
+#repeat-indicator {
     font-family: 'Roboto', sans-serif;
     color: #33ccff; /* La couleur bleue McIntosh de ton format */
     font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
