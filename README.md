@@ -39,3 +39,5 @@ The application uses the Web Audio API to create a modular signal path:
 ## License
 
 This project is licensed under the MIT License.
+
+<img width="1840" height="690" alt="1" src="https://github.com/user-attachments/assets/8191352f-7b4c-4d54-abbf-1bf614b0780d" />
