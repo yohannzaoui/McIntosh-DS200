@@ -105,53 +105,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
-        if (playlist.length > 0 && playlist[index]) {
-            const file = playlist[index];
-            const fileURL = URL.createObjectURL(file);
-            audio.src = fileURL;
-            
-            if (formatDisplay) {
-                const extension = file.name.split('.').pop().toUpperCase();
-                formatDisplay.innerText = extension;
-            }
+    if (playlist.length > 0 && playlist[index]) {
+        const file = playlist[index];
+        const fileURL = URL.createObjectURL(file);
+        audio.src = fileURL;
+        
+        const bitrateDisplay = document.getElementById('bitrate-display');
+        if (bitrateDisplay) bitrateDisplay.innerText = "---"; // État d'attente
 
-            trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
-            timeDisplay.innerText = "00:00";
-            statusLine.innerText = "READING TAGS...";
-            currentCoverData = null; 
-
-            jsmediatags.read(file, {
-                onSuccess: function(tag) {
-                    const tags = tag.tags;
-                    const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-                    const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
-                    const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
-
-                    statusLine.innerText = title;
-                    artistDisplay.innerText = artist;
-                    albumDisplay.innerText = album;
-
-                    if (tags.picture) {
-                        const { data, format } = tags.picture;
-                        let base64String = "";
-                        for (let i = 0; i < data.length; i++) {
-                            base64String += String.fromCharCode(data[i]);
-                        }
-                        currentCoverData = `data:${format};base64,${window.btoa(base64String)}`;
-                    }
-                },
-                onError: function() {
-                    statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-                    artistDisplay.innerText = "DS200 PLAYER";
-                    albumDisplay.innerText = "NO METADATA";
-                }
-            });
-
-            if (playPauseBtn.classList.contains('active')) {
-                audio.play().catch(e => console.log("Lecture auto bloquée"));
-            }
+        if (formatDisplay) {
+            const extension = file.name.split('.').pop().toUpperCase();
+            formatDisplay.innerText = extension;
         }
-    };
+
+        trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
+        timeDisplay.innerText = "00:00";
+        statusLine.innerText = "READING TAGS...";
+        currentCoverData = null; 
+
+        // --- CALCUL DU BITRATE (Attendre que le fichier soit chargé) ---
+        audio.onloadedmetadata = () => {
+            if (bitrateDisplay && audio.duration) {
+                const kbps = Math.floor((file.size * 8) / audio.duration / 1000);
+                bitrateDisplay.innerText = `${kbps} KBPS`;
+            }
+        };
+
+        jsmediatags.read(file, {
+            onSuccess: function(tag) {
+                const tags = tag.tags;
+                const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
+                const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
+
+                statusLine.innerText = title;
+                artistDisplay.innerText = artist;
+                albumDisplay.innerText = album;
+
+                if (tags.picture) {
+                    const { data, format } = tags.picture;
+                    let base64String = "";
+                    for (let i = 0; i < data.length; i++) {
+                        base64String += String.fromCharCode(data[i]);
+                    }
+                    currentCoverData = `data:${format};base64,${window.btoa(base64String)}`;
+                }
+            },
+            onError: function() {
+                statusLine.innerText = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+                artistDisplay.innerText = "DS200 PLAYER";
+                albumDisplay.innerText = "NO METADATA";
+            }
+        });
+
+        if (playPauseBtn.classList.contains('active')) {
+            audio.play().catch(e => console.log("Lecture auto bloquée"));
+        }
+    }
+};
 
     // --- LOGIQUE AVANCE/RETOUR RAPIDE ---
     const startSeeking = (direction) => {
