@@ -17,7 +17,7 @@ body {
     background: #000;
     border: 3px solid #1a1a1a;
     position: relative;
-    box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
     overflow: hidden;
 }
 
@@ -25,7 +25,7 @@ body {
     width: 55px;
     background: linear-gradient(to right, #c2c2c2 0%, #aaa 10%, #eee 50%, #aaa 90%, #c2c2c2 100%);
     height: 100%;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .front-panel {
@@ -43,9 +43,9 @@ body {
 }
 
 .brand-logo-img {
-    height: 110px; 
+    height: 110px;
     width: auto;
-    filter: none; 
+    filter: none;
     transition: opacity 0.5s ease;
 }
 
@@ -66,11 +66,11 @@ body {
     display: flex;
     flex-direction: column;
     color: #33ccff;
-    font-family: 'Roboto', sans-serif; 
-    font-weight: 300; 
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
     font-size: 2.5rem;
     text-shadow: 0 0 15px rgba(51, 204, 255, 0.7);
-    box-shadow: inset 0 0 30px rgba(0,0,0,1);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 1);
     transition: all 0.3s ease;
     overflow: hidden;
 }
@@ -79,7 +79,7 @@ body {
     background: #000;
     color: transparent !important;
     text-shadow: none !important;
-    box-shadow: inset 0 0 80px rgba(0,0,0,1);
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 1);
     border-color: #050505;
 }
 
@@ -89,21 +89,24 @@ body {
     top: 20px;
 }
 
-.track-counter { 
-    left: 30px; 
-    text-align: left; 
+.track-counter {
+    left: 30px;
+    text-align: left;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
 }
 
 .track-data {
     display: flex;
-    flex-direction: row; 
+    flex-direction: row;
     align-items: baseline;
     gap: 12px;
 }
 
-.time-counter { right: 30px; text-align: right; }
+.time-counter {
+    right: 30px;
+    text-align: right;
+}
 
 .volume-center {
     position: absolute;
@@ -165,7 +168,9 @@ body {
     gap: 10px;
 }
 
-.separator { color: #00ff00; }
+.separator {
+    color: #00ff00;
+}
 
 /* --- VU-MÈTRE --- */
 .visualizer-container {
@@ -181,7 +186,7 @@ body {
 
 #vfd-visualizer {
     width: 100%;
-    height: 50px; 
+    height: 50px;
     background: #000;
 }
 
@@ -212,7 +217,7 @@ body {
     justify-content: center;
     align-items: center;
     border: 2px solid #222;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
 .knob {
@@ -224,10 +229,23 @@ body {
     cursor: pointer;
 }
 
-#volume-knob { cursor: e-resize; }
+#volume-knob {
+    cursor: e-resize;
+}
 
-.label { color: #22ff22; font-size: 1.1rem; letter-spacing: 2px; margin-bottom: 15px; }
-.sub-label { color: #555; font-size: 0.8rem; margin-top: 15px; text-align: center; }
+.label {
+    color: #22ff22;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.sub-label {
+    color: #555;
+    font-size: 0.8rem;
+    margin-top: 15px;
+    text-align: center;
+}
 
 /* --- BOUTONS DU BAS --- */
 .bottom-row {
@@ -243,27 +261,32 @@ body {
     display: flex;
     gap: 30px;
     align-items: flex-end;
-    position: relative; /* Permet à la ligne de se baser sur ce conteneur */
+    position: relative;
+    /* Permet à la ligne de se baser sur ce conteneur */
 }
 
 /* Ligne "Streaming Controls" : AUCUN IMPACT SUR LES BOUTONS */
 .streaming-label-container {
     position: absolute;
     width: 100%;
-    bottom: -30px; /* Place la ligne sous les boutons */
+    bottom: -30px;
+    /* Place la ligne sous les boutons */
     left: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 15px;
-    pointer-events: none; /* Ne gêne pas le clic */
+    pointer-events: none;
+    /* Ne gêne pas le clic */
 }
 
 .gold-line {
     flex-grow: 1;
-    height: 1px;           /* Épaisseur d'un seul pixel */
-    background: #ffd700;   /* Couleur or solide (identique à PUSH) */
-    
+    height: 1px;
+    /* Épaisseur d'un seul pixel */
+    background: #ffd700;
+    /* Couleur or solide (identique à PUSH) */
+
 }
 
 .utility-buttons {
@@ -305,7 +328,7 @@ body {
 .btn-round.standby {
     background: #a10101;
     border: 1px solid #880000;
-    box-shadow: inset 0 1px 3px rgba(255,255,255,0.4);
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.4);
 }
 
 /* LEDS */
@@ -317,8 +340,15 @@ body {
     margin-bottom: 2px;
 }
 
-.led.green.active { background: #22ff22; box-shadow: 0 0 10px #22ff22; }
-.led.red.active { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+.led.green.active {
+    background: #22ff22;
+    box-shadow: 0 0 10px #22ff22;
+}
+
+.led.red.active {
+    background: #ff0000;
+    box-shadow: 0 0 10px #ff0000;
+}
 
 .time-wrapper {
     display: flex;
@@ -335,13 +365,15 @@ body {
 
 /* --- TEXTES GOLD --- */
 .gold-text {
-    color: #ffd700; /* La couleur or de base */
+    color: #ffd700;
+    /* La couleur or de base */
     text-transform: uppercase;
     font-weight: normal;
 }
 
 .streaming-txt {
-    color: #ffd700; /* La couleur or de base */
+    color: #ffd700;
+    /* La couleur or de base */
     text-transform: uppercase;
     font-weight: normal;
     font-size: small;
@@ -363,7 +395,7 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(5px);
 }
 
