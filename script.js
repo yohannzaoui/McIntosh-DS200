@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
-            timeDisplay.innerText = "00:00";
+            timeDisplay.innerText = isTimeRemaining ? "-00:00" : "00:00";
             statusLine.innerText = "READING TAGS...";
             currentCoverData = null; 
 
@@ -172,40 +172,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- LOGIQUE DE NAVIGATION (NEXT / RANDOM) ---
+    const getNextIndex = () => {
+        if (isRandomMode && playlist.length > 1) {
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * playlist.length);
+            } while (nextIndex === currentIndex);
+            return nextIndex;
+        }
+        return (currentIndex + 1) % playlist.length;
+    };
+
     // --- GESTION DU TEMPS ET LECTURE AUTOMATIQUE ---
     audio.addEventListener('timeupdate', () => {
-    if (timeDisplay && !isNaN(audio.currentTime) && !isNaN(audio.duration)) {
-        let timeToShow;
-        let prefix = isTimeRemaining ? "-" : ""; // Le signe moins est géré à part
-        
-        if (isTimeRemaining) {
-            timeToShow = audio.duration - audio.currentTime;
-        } else {
-            timeToShow = audio.currentTime;
+        if (timeDisplay && !isNaN(audio.currentTime) && !isNaN(audio.duration)) {
+            let timeToShow;
+            let prefix = isTimeRemaining ? "-" : ""; 
+            
+            if (isTimeRemaining) {
+                timeToShow = audio.duration - audio.currentTime;
+            } else {
+                timeToShow = audio.currentTime;
+            }
+            
+            const mins = Math.floor(timeToShow / 60).toString().padStart(2, '0');
+            const secs = Math.floor(timeToShow % 60).toString().padStart(2, '0');
+            
+            timeDisplay.innerText = `${prefix}${mins}:${secs}`;
         }
-        
-        const mins = Math.floor(timeToShow / 60).toString().padStart(2, '0');
-        const secs = Math.floor(timeToShow % 60).toString().padStart(2, '0');
-        
-        // On met à jour le texte. Le CSS (min-width) s'occupe de garder le symbole immobile.
-        timeDisplay.innerText = `${prefix}${mins}:${secs}`;
-    }
-});
+    });
 
     audio.addEventListener('ended', () => {
         if (isRepeatMode) {
             audio.currentTime = 0;
             audio.play();
-        } else if (isRandomMode) {
-            let nextIndex;
-            do {
-                nextIndex = Math.floor(Math.random() * playlist.length);
-            } while (nextIndex === currentIndex && playlist.length > 1);
-            currentIndex = nextIndex;
-            loadTrack(currentIndex);
-            audio.play();
         } else {
-            currentIndex = (currentIndex + 1) % playlist.length;
+            currentIndex = getNextIndex();
             loadTrack(currentIndex);
             audio.play();
         }
@@ -216,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     timeDisplay.addEventListener('click', (e) => {
         e.stopPropagation();
         isTimeRemaining = !isTimeRemaining;
+        // Déclenche une mise à jour immédiate
         const event = new Event('timeupdate');
         audio.dispatchEvent(event);
     });
@@ -276,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     nextBtn.addEventListener('click', () => {
         if (playlist.length === 0 || isSeeking) return;
-        currentIndex = (currentIndex + 1) % playlist.length;
+        currentIndex = getNextIndex();
         loadTrack(currentIndex);
     });
 
@@ -386,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stopBtn.addEventListener('click', () => {
         audio.pause();
         audio.currentTime = 0;
-        timeDisplay.innerText = "00:00";
+        timeDisplay.innerText = isTimeRemaining ? "-00:00" : "00:00";
         playPauseBtn.classList.remove('active');
         statusIcon.innerHTML = '<i class="fa-solid fa-stop"></i>';
     });
