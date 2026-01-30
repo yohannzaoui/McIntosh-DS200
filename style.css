@@ -408,3 +408,13 @@ body {
     max-width: 500px;
     text-align: center;
 }
+
+#cover-art-full {
+    width: 480px;      /* Largeur réduite (ajuste ici si c'est encore trop grand) */
+    height: 480px;     /* Garde un format carré */
+    object-fit: cover; /* Évite de déformer l'image si elle n'est pas carrée */
+    border: 1px solid #00ff00; /* Rappel du vert McIntosh */
+    display: block;    /* Permet le centrage avec margin */
+    margin: 15px auto; /* Centre l'image et ajoute de l'espace autour */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
