@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCoverData = null; 
     let isRepeatMode = false;
     let isRandomMode = false;
+    let isTimeRemaining = false;
 
     // Boutons Rotatifs
     const inputKnob = document.getElementById('input-knob');
@@ -171,7 +172,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- LOGIQUE AUTOMATIQUE (FIN DE FICHIER) ---
+    // --- GESTION DU TEMPS ET LECTURE AUTOMATIQUE ---
+    audio.addEventListener('timeupdate', () => {
+    if (timeDisplay && !isNaN(audio.currentTime) && !isNaN(audio.duration)) {
+        let timeToShow;
+        let prefix = isTimeRemaining ? "-" : ""; // Le signe moins est géré à part
+        
+        if (isTimeRemaining) {
+            timeToShow = audio.duration - audio.currentTime;
+        } else {
+            timeToShow = audio.currentTime;
+        }
+        
+        const mins = Math.floor(timeToShow / 60).toString().padStart(2, '0');
+        const secs = Math.floor(timeToShow % 60).toString().padStart(2, '0');
+        
+        // On met à jour le texte. Le CSS (min-width) s'occupe de garder le symbole immobile.
+        timeDisplay.innerText = `${prefix}${mins}:${secs}`;
+    }
+});
+
     audio.addEventListener('ended', () => {
         if (isRepeatMode) {
             audio.currentTime = 0;
@@ -189,6 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
             loadTrack(currentIndex);
             audio.play();
         }
+    });
+
+    // --- CLIC SUR COMPTEUR TEMPS ---
+    timeDisplay.style.cursor = "pointer";
+    timeDisplay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isTimeRemaining = !isTimeRemaining;
+        const event = new Event('timeupdate');
+        audio.dispatchEvent(event);
     });
 
     // --- LOGIQUE AVANCE/RETOUR RAPIDE ---
@@ -338,14 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
         audio.muted = !audio.muted;
         muteLed.classList.toggle('active');
         showVolumeOnVFD();
-    });
-
-    audio.addEventListener('timeupdate', () => {
-        if (timeDisplay && !isNaN(audio.currentTime)) {
-            const mins = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
-            const secs = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
-            timeDisplay.innerText = `${mins}:${secs}`;
-        }
     });
 
     playPauseBtn.addEventListener('click', () => {

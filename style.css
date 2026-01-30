@@ -523,3 +523,27 @@ body {
 .options-menu .btn-label {
     font-size: 9px !important;
 }
+
+/* --- AJUSTEMENT DE LA PROXIMITÉ DU SYMBOLE --- */
+
+.time-wrapper {
+    display: flex;
+    align-items: baseline; /* Aligne le bas du symbole sur le bas des chiffres */
+    justify-content: flex-end; 
+    gap: 8px; /* MODIFIE CETTE VALEUR : plus le chiffre est petit, plus le symbole est proche */
+}
+
+#time-display {
+    display: inline-block;
+    /* On réduit cette largeur pour coller le symbole au temps */
+    /* 85px est idéal pour la police Digital-7 en taille standard */
+    min-width: 65px; 
+    text-align: right;
+    font-variant-numeric: tabular-nums; /* Empêche les chiffres de "sauter" */
+}
+
+#status-icon {
+    display: flex;
+    align-items: center;
+    width: 20px; /* Largeur fixe pour l'icône pour éviter tout mouvement */
+}
