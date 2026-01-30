@@ -92,31 +92,28 @@
                 </div>
 
                 <div class="bottom-row">
-                    <div class="transport-buttons">
+                    <div class="transport-buttons" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
                         <div class="btn-wrapper">
-                            <span class="btn-label"><i
-                                    class="fa-solid fa-backward-step"></i></span>
-                            <button class="btn-transport"
-                                id="prev-btn"></button>
+                            <span class="btn-label"><i class="fa-solid fa-backward-step"></i></span>
+                            <button class="btn-transport" id="prev-btn"></button>
                         </div>
                         <div class="btn-wrapper">
-                            <span class="btn-label"><i
-                                    class="fa-solid fa-forward-step"></i></span>
-                            <button class="btn-transport"
-                                id="next-btn"></button>
+                            <span class="btn-label"><i class="fa-solid fa-forward-step"></i></span>
+                            <button class="btn-transport" id="next-btn"></button>
                         </div>
                         <div class="btn-wrapper">
-                            <span class="btn-label"><i
-                                    class="fa-solid fa-play"></i> <i
-                                    class="fa-solid fa-pause"></i></span>
-                            <button class="btn-transport"
-                                id="play-pause"></button>
+                            <span class="btn-label"><i class="fa-solid fa-play"></i> <i class="fa-solid fa-pause"></i></span>
+                            <button class="btn-transport" id="play-pause"></button>
                         </div>
                         <div class="btn-wrapper">
-                            <span class="btn-label"><i
-                                    class="fa-solid fa-stop"></i></span>
-                            <button class="btn-transport"
-                                id="stop-btn"></button>
+                            <span class="btn-label"><i class="fa-solid fa-stop"></i></span>
+                            <button class="btn-transport" id="stop-btn"></button>
+                        </div>
+
+                        <div class="streaming-label-container">
+                            <div class="gold-line"></div>
+                            <span class="streaming-txt">STREAMING CONTROLS</span>
+                            <div class="gold-line"></div>
                         </div>
                     </div>
 
@@ -135,10 +132,8 @@
 
                         <div class="btn-wrapper">
                             <span class="led red active"></span>
-                            <span
-                                class="btn-label standby-txt">STANDBY/ON</span>
-                            <button class="btn-round standby"
-                                id="standby-btn"></button>
+                            <span class="btn-label standby-txt">STANDBY/ON</span>
+                            <button class="btn-round standby" id="standby-btn"></button>
                         </div>
                     </div>
                 </div>
@@ -155,14 +150,10 @@
             </div>
         </div>
         <div id="playlist-modal" class="modal">
-            <div class="modal-content"
-                style="max-height: 70vh; overflow-y: auto; background: #050505; border: 1px solid #00ff00; padding: 20px;">
-                <span class="close-playlist"
-                    style="float: right; cursor: pointer; color: #00ff00; font-size: 30px;">&times;</span>
-                <h3
-                    style="color: #00ff00; font-family: 'Roboto', sans-serif; border-bottom: 1px solid #00ff00; padding-bottom: 10px;">PLAYLIST</h3>
-                <ul id="playlist-items"
-                    style="list-style: none; padding: 0; text-align: left; color: #33ccff; font-family: 'Roboto', sans-serif;">
+            <div class="modal-content" style="max-height: 70vh; overflow-y: auto; background: #050505; border: 1px solid #00ff00; padding: 20px;">
+                <span class="close-playlist" style="float: right; cursor: pointer; color: #00ff00; font-size: 30px;">&times;</span>
+                <h3 style="color: #00ff00; font-family: 'Roboto', sans-serif; border-bottom: 1px solid #00ff00; padding-bottom: 10px;">PLAYLIST</h3>
+                <ul id="playlist-items" style="list-style: none; padding: 0; text-align: left; color: #33ccff; font-family: 'Roboto', sans-serif;">
                 </ul>
             </div>
         </div>
