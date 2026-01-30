@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const muteBtn = document.getElementById('mute-btn');
     const standbyBtn = document.getElementById('standby-btn');
     const muteLed = document.getElementById('mute-led');
-    const displayLed = document.querySelector('.utility-buttons .led.green.active');
+    
+    // Sélecteur dynamique pour la LED Display (cherche la LED dans le même wrapper)
+    const displayLed = displayBtn.parentElement.querySelector('.led');
 
     // --- VARIABLES AVANCE/RETOUR RAPIDE ---
     let seekInterval;
@@ -169,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => isSeeking = false, 50); 
     };
 
-    // --- POPUP PLAYLIST (AU CLIC SUR LE COMPTEUR) ---
+    // --- POPUP PLAYLIST ---
     trackNumberDisplay.style.cursor = "pointer";
     trackNumberDisplay.addEventListener('click', () => {
         if (playlist.length === 0) return;
@@ -267,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     volumeKnob.addEventListener('mouseenter', showVolumeOnVFD);
+    
     muteBtn.addEventListener('click', () => {
         audio.muted = !audio.muted;
         muteLed.classList.toggle('active');
@@ -309,11 +312,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playlist.length > 0) { currentIndex = 0; loadTrack(currentIndex); }
     });
 
+    // --- FONCTION DISPLAY (ÉTEINDRE L'ÉCRAN) ---
     displayBtn.addEventListener('click', () => {
         vfdDisplay.classList.toggle('power-off');
-        if(displayLed) displayLed.classList.toggle('active');
+        if (displayLed) {
+            displayLed.classList.toggle('active');
+        }
     });
 
+    // --- FONCTION STANDBY ---
     standbyBtn.addEventListener('click', () => {
         statusLine.innerText = "SHUTDOWN...";
         setTimeout(() => window.location.reload(), 500);

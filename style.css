@@ -76,11 +76,15 @@ body {
 }
 
 .vfd-display.power-off {
-    background: #000;
-    color: transparent !important;
-    text-shadow: none !important;
-    box-shadow: inset 0 0 80px rgba(0, 0, 0, 1);
-    border-color: #050505;
+    background: #000 !important;
+    border-color: #050505 !important;
+    box-shadow: none !important;
+}
+
+/* On cache tout le contenu à l'intérieur quand c'est éteint */
+.vfd-display.power-off * {
+    opacity: 0 !important;
+    transition: opacity 0.2s ease;
 }
 
 /* Compteurs Haut */
