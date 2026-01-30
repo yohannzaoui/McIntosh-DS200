@@ -1,6 +1,6 @@
 ---
 
-# DS200 Hi-Fi Digital Audio Player
+# McIntosh DS200 Hi-Fi Digital Audio Player
 
 A premium, web-based digital audio player inspired by high-end vintage Hi-Fi rack systems (like McIntosh and Accuphase). Featuring a responsive VFD (Vacuum Fluorescent Display), real-time spectrum analysis, and advanced tonal controls.
 
