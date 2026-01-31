@@ -1,14 +1,13 @@
 # McIntosh DS200 Network Player
 
 A premium web-based audio player inspired by the legendary McIntosh audio equipment, featuring an authentic VFD display, real-time spectrum analyzer, and comprehensive playback controls.
-![McIntosh DS200](https://img.shields.io/badge/McIntosh-DS2000-blue)
-![Status](https://img.shields.io/badge/status-active-success)
-![License](https://img.shields.io/badge/license-MIT-green)
 
 <img width="1280" height="343" alt="McIntosh_Logo" src="https://github.com/user-attachments/assets/36ea3b5c-d932-4af0-a648-0a984e82c769" />
 
 
-## Overview
+## Overview ![McIntosh DS200](https://img.shields.io/badge/McIntosh-DS2000-blue)
+![Status](https://img.shields.io/badge/status-active-success)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 McIntosh DS200 Network Player is a fully-functional web audio player that recreates the premium experience of high-end McIntosh audio components. It features a detailed vacuum fluorescent display (VFD) simulation with real-time spectrum analysis, professional transport controls, and advanced audio processing capabilities.
 
