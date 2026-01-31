@@ -247,13 +247,27 @@ body {
 .knob-outer {
     width: 160px;
     height: 160px;
-    background: linear-gradient(to right, #a5a5a5 0%, #aaa 10%, #eee 50%, #aaa 90%, #a5a5a5 100%);
+    /* On utilise un dégradé avec des arrêts nets pour simuler la réflexion de la lumière */
+    background: linear-gradient(
+        145deg, 
+        #d1d1d1 0%, 
+        #ffffff 15%, 
+        #5e5e5e 45%, 
+        #b8b8b8 50%, 
+        #5e5e5e 55%, 
+        #ffffff 85%, 
+        #d1d1d1 100%
+    );
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #222;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    /* Bordure métallique plus cohérente avec le chrome que le noir pur */
+    border: 2px solid #888; 
+    /* Double ombre : une portée pour le relief et une interne pour l'éclat du bord */
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.8),
+        inset 0 2px 4px rgba(255, 255, 255, 0.9);
 }
 
 .knob {
