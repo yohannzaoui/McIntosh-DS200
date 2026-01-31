@@ -3,6 +3,8 @@
 A premium web-based audio player inspired by the legendary McIntosh audio equipment, featuring an authentic VFD display, real-time spectrum analyzer, and comprehensive playback controls.
 
 <img width="1280" height="343" alt="McIntosh_Logo" src="https://github.com/user-attachments/assets/36ea3b5c-d932-4af0-a648-0a984e82c769" />
+<img width="1847" height="704" alt="5" src="https://github.com/user-attachments/assets/e2ce4620-48fc-46da-a0e2-4fc22f0628bb" />
+
 
 ## Overview
 
