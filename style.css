@@ -248,24 +248,22 @@ body {
     width: 160px;
     height: 160px;
     /* On utilise un dégradé avec des arrêts nets pour simuler la réflexion de la lumière */
-    background: linear-gradient(
-        145deg, 
-        #d1d1d1 0%, 
-        #ffffff 15%, 
-        #5e5e5e 45%, 
-        #b8b8b8 50%, 
-        #5e5e5e 55%, 
-        #ffffff 85%, 
-        #d1d1d1 100%
-    );
+    background: linear-gradient(145deg,
+            #d1d1d1 0%,
+            #ffffff 15%,
+            #5e5e5e 45%,
+            #b8b8b8 50%,
+            #5e5e5e 55%,
+            #ffffff 85%,
+            #d1d1d1 100%);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     /* Bordure métallique plus cohérente avec le chrome que le noir pur */
-    border: 2px solid #888; 
+    border: 2px solid #888;
     /* Double ombre : une portée pour le relief et une interne pour l'éclat du bord */
-    box-shadow: 
+    box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.8),
         inset 0 2px 4px rgba(255, 255, 255, 0.9);
 }
@@ -339,7 +337,8 @@ body {
 
 .btn-transport, .btn-round {
     background: linear-gradient(180deg, #1d1d1d, #050505);
-    border: 3px solid #2e2e2e;
+    /* Ton cadre extérieur bombé de 5px */
+    border: 5px solid #2c2c2c;
     width: 65px;
     height: 45px;
     border-radius: 15px;
@@ -348,12 +347,28 @@ body {
     justify-content: center;
     align-items: center;
     transition: all 0.2s ease;
+    box-sizing: border-box;
+
+    /* On combine ton ombre portée avec la bordure noire interne de 2px */
+    box-shadow:
+        0 4px 0 #000000,
+        /* Ombre sous le bouton */
+        inset 0 0 0 4px #000000,
+        /* LA BORDURE NOIRE DE 2PX */
+        inset 0 3px 5px rgba(12, 12, 12, 0.5);
+    /* Ombre pour l'effet de profondeur */
 }
 
 .btn-round.standby {
     background: #a10101;
-    border: 1px solid #880000;
-    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.4);
+    border: 5px solid #2c2c2c;
+    box-shadow:
+        0 4px 0 #000000,
+        /* Ombre sous le bouton */
+        inset 0 0 0 4px #000000,
+        /* LA BORDURE NOIRE DE 2PX */
+        inset 0 3px 5px rgba(12, 12, 12, 0.5);
+    /* Ombre pour l'effet de profondeur */
 }
 
 /* LEDS */
@@ -505,14 +520,16 @@ body {
 }
 
 .options-menu {
-    display: none; 
+    display: none;
     position: absolute;
-    bottom: 110px; /* Positionné juste au-dessus de la ligne de boutons */
-    right: 40px;   /* Aligné avec le bloc de droite */
-    width: 320px;
+    bottom: 110px;
+    /* Positionné juste au-dessus de la ligne de boutons */
+    right: 40px;
+    /* Aligné avec le bloc de droite */
+    width: 220px;
     background: rgba(0, 0, 0, 0.9);
-    border: 1px solid #222;
-    border-radius: 8px;
+    border: 1px solid var(--mc-gold);
+    border-radius: 2px;
     padding: 25px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(51, 204, 255, 0.1);
     z-index: 3000;
@@ -524,7 +541,8 @@ body {
 .options-row {
     display: flex;
     justify-content: center;
-    gap: 25px; /* Même espacement que tes boutons de châssis */
+    gap: 25px;
+    /* Même espacement que tes boutons de châssis */
     width: 100%;
 }
 
@@ -537,15 +555,15 @@ body {
 }
 
 .tone-separator-line {
-    width: 80%;
+    width: 95%;
     height: 1px;
-    background: linear-gradient(to right, transparent, #ffd700, transparent);
-    opacity: 0.5;
+    background: #ffd700;
 }
 
 /* On s'assure que les boutons dans le pop-up gardent leur taille */
 .options-menu .btn-round {
-    width: 55px;  /* Un peu plus petit pour le pop-up si besoin, sinon 65px */
+    width: 55px;
+    /* Un peu plus petit pour le pop-up si besoin, sinon 65px */
     height: 38px;
 }
 
@@ -557,44 +575,54 @@ body {
 
 .time-wrapper {
     display: flex;
-    align-items: baseline; /* Aligne le bas du symbole sur le bas des chiffres */
-    justify-content: flex-end; 
-    gap: 8px; /* MODIFIE CETTE VALEUR : plus le chiffre est petit, plus le symbole est proche */
+    align-items: baseline;
+    /* Aligne le bas du symbole sur le bas des chiffres */
+    justify-content: flex-end;
+    gap: 8px;
+    /* MODIFIE CETTE VALEUR : plus le chiffre est petit, plus le symbole est proche */
 }
 
 #time-display {
     display: inline-block;
     /* On réduit cette largeur pour coller le symbole au temps */
     /* 85px est idéal pour la police Digital-7 en taille standard */
-    min-width: 65px; 
+    min-width: 65px;
     text-align: right;
-    font-variant-numeric: tabular-nums; /* Empêche les chiffres de "sauter" */
+    font-variant-numeric: tabular-nums;
+    /* Empêche les chiffres de "sauter" */
 }
 
 #status-icon {
     display: flex;
     align-items: center;
-    width: 20px; /* Largeur fixe pour l'icône pour éviter tout mouvement */
+    width: 20px;
+    /* Largeur fixe pour l'icône pour éviter tout mouvement */
 }
 
 #random-indicator {
     font-family: 'Roboto', sans-serif;
-    color: var(--mc-blue); /* La couleur bleue McIntosh de ton format */
-    font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
+    color: var(--mc-blue);
+    /* La couleur bleue McIntosh de ton format */
+    font-size: 10px;
+    /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
 #repeat-indicator {
     font-family: 'Roboto', sans-serif;
-    color: var(--mc-blue); /* La couleur bleue McIntosh de ton format */
-    font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
+    color: var(--mc-blue);
+    /* La couleur bleue McIntosh de ton format */
+    font-size: 10px;
+    /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
 #ab-indicator {
     font-family: 'Roboto', sans-serif;
-    color: var(--mc-blue); /* La couleur bleue McIntosh de ton format */
-    font-size: 10px; /* À ajuster selon la taille de ton 'file-format' */
+    color: var(--mc-blue);
+    /* La couleur bleue McIntosh de ton format */
+    font-size: 10px;
+    /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
@@ -614,7 +642,26 @@ body {
 }
 
 #input-knob:active {
-    transform: scale(0.95); /* Le bouton rétrécit légèrement */
-    filter: brightness(1.2); /* Il devient un peu plus brillant */
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 102, 0.3); /* Ombre interne + lueur externe */
+    transform: scale(0.95);
+    /* Le bouton rétrécit légèrement */
+    filter: brightness(1.2);
+    /* Il devient un peu plus brillant */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 102, 0.3);
+    /* Ombre interne + lueur externe */
+}
+
+.options-logo-container {
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+}
+
+.options-logo {
+    max-width: 120px;
+    /* Ajuste la taille selon tes besoins */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+    /* Optionnel: petite ombre sous le logo */
 }

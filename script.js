@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeDisplay = document.getElementById('time-display');
     const albumDisplay = document.getElementById('album-name');
     const artistDisplay = document.getElementById('artist-name');
-    const statusIcon = document.getElementById('status-icon');  
-    const randomIndicator = document.getElementById('random-indicator'); 
-    const repeatIndicator = document.getElementById('repeat-indicator'); 
-    const abIndicator = document.getElementById('ab-indicator'); 
+    const statusIcon = document.getElementById('status-icon');
+    const randomIndicator = document.getElementById('random-indicator');
+    const repeatIndicator = document.getElementById('repeat-indicator');
+    const abIndicator = document.getElementById('ab-indicator');
     const modal = document.getElementById('cover-modal');
     const modalImg = document.getElementById('cover-art-full');
     const closeModal = document.querySelector('.close-modal');
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let playlist = [];
     let currentIndex = 0;
     let volTimeout;
-    let currentCoverData = null; 
-    let repeatMode = 0; 
+    let currentCoverData = null;
+    let repeatMode = 0;
     let isRandomMode = false;
     let isTimeRemaining = false;
 
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const muteBtn = document.getElementById('mute-btn');
     const standbyBtn = document.getElementById('standby-btn');
     const muteLed = document.getElementById('mute-led');
-    
+
     const displayLed = displayBtn.parentElement.querySelector('.led');
 
     // --- POPUP OPTIONS ---
@@ -72,12 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsPopup = document.getElementById('options-popup');
     const randomBtn = document.getElementById('random-btn');
     const repeatBtn = document.getElementById('repeat-btn');
-    const abBtn = document.getElementById('ab-btn'); 
+    const abBtn = document.getElementById('ab-btn');
 
     // --- VARIABLES AVANCE/RETOUR RAPIDE ---
     let seekInterval;
     let isSeeking = false;
-    const SEEK_STEP = 3; 
+    const SEEK_STEP = 3;
 
     // --- VISUALISEUR (VU-MÈTRE) ---
     const canvas = document.getElementById('vfd-visualizer');
@@ -93,12 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- CONFIGURATION FILTRES TONALITÉ ---
         bassFilter = audioCtx.createBiquadFilter();
         bassFilter.type = "lowshelf";
-        bassFilter.frequency.value = 200; 
+        bassFilter.frequency.value = 200;
         bassFilter.gain.value = bassLevel;
 
         trebleFilter = audioCtx.createBiquadFilter();
         trebleFilter.type = "highshelf";
-        trebleFilter.frequency.value = 3000; 
+        trebleFilter.frequency.value = 3000;
         trebleFilter.gain.value = trebleLevel;
 
         // Chaînage : Source -> Basses -> Aigus -> Analyseur -> Destination
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         trebleFilter.connect(analyser);
         analyser.connect(audioCtx.destination);
 
-        analyser.fftSize = 64; 
+        analyser.fftSize = 64;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
 
         const dpr = window.devicePixelRatio || 1;
@@ -125,8 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const logicalHeight = canvas.height / (window.devicePixelRatio || 1);
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
         const barWidth = Math.floor((logicalWidth / dataArray.length) * 0.85);
-        const segmentHeight = 4; 
-        const segmentGap = 1; 
+        const segmentHeight = 4;
+        const segmentGap = 1;
         const totalSegments = Math.floor(logicalHeight / (segmentHeight + segmentGap));
         let x = 0;
         for (let i = 0; i < dataArray.length; i++) {
@@ -134,10 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const segmentsToFill = Math.floor(intensity * totalSegments);
             for (let j = 0; j < segmentsToFill; j++) {
                 const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
-                let color = "#33ccff"; 
+                let color = "#33ccff";
                 const percent = j / totalSegments;
-                if (percent > 0.75) color = "#ff0000";      
-                else if (percent > 0.55) color = "#ffaa00"; 
+                if (percent > 0.75) color = "#ff0000";
+                else if (percent > 0.55) color = "#ffaa00";
                 ctx.fillStyle = color;
                 ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
                 ctx.fillStyle = "rgba(255,255,255,0.1)";
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
         volLabel.innerText = label;
-        
+
         if (label === "TONE" && value === 0) {
             volDisplay.innerText = "FLAT";
         } else {
@@ -229,13 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
-            resetABLoop(); 
+            resetABLoop();
             const file = playlist[index];
             const fileURL = URL.createObjectURL(file);
             audio.src = fileURL;
-            
+
             const bitrateDisplay = document.getElementById('bitrate-display');
-            if (bitrateDisplay) bitrateDisplay.innerText = "---"; 
+            if (bitrateDisplay) bitrateDisplay.innerText = "---";
 
             if (formatDisplay) {
                 const extension = file.name.split('.').pop().toUpperCase();
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             trackNumberDisplay.innerText = `${index + 1}/${playlist.length}`;
             timeDisplay.innerText = isTimeRemaining ? "-00:00" : "00:00";
             statusLine.innerText = "READING TAGS...";
-            currentCoverData = null; 
+            currentCoverData = null;
 
             audio.onloadedmetadata = () => {
                 if (bitrateDisplay && audio.duration) {
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             jsmediatags.read(file, {
-                onSuccess: function(tag) {
+                onSuccess: function (tag) {
                     const tags = tag.tags;
                     const title = tags.title ? tags.title.toUpperCase() : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
                     const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
@@ -277,12 +277,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Mise à jour Media Session
                     updateMediaSession(title, artist, album, currentCoverData);
                 },
-                onError: function() {
+                onError: function () {
                     const title = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
                     statusLine.innerText = title;
                     artistDisplay.innerText = "DS200 PLAYER";
                     albumDisplay.innerText = "NO METADATA";
-                    
+
                     // Mise à jour Media Session même sans métadonnées
                     updateMediaSession(title, "DS200 PLAYER", "NO METADATA", null);
                 }
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (timeDisplay && !isNaN(audio.currentTime) && !isNaN(audio.duration)) {
             let timeToShow;
-            let prefix = isTimeRemaining ? "-" : ""; 
+            let prefix = isTimeRemaining ? "-" : "";
             if (isTimeRemaining) {
                 timeToShow = audio.duration - audio.currentTime;
             } else {
@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const stopSeeking = () => {
         clearInterval(seekInterval);
-        setTimeout(() => isSeeking = false, 50); 
+        setTimeout(() => isSeeking = false, 50);
     };
 
     trackNumberDisplay.style.cursor = "pointer";
@@ -502,16 +502,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (closeModal) closeModal.onclick = () => modal.style.display = "none";
-    window.onclick = (event) => { 
-        if (event.target == modal) modal.style.display = "none"; 
+    window.onclick = (event) => {
+        if (event.target == modal) modal.style.display = "none";
         if (event.target == playlistModal) playlistModal.style.display = "none";
         if (event.target == optionsPopup) optionsPopup.style.display = "none";
     };
 
     document.addEventListener('click', () => {
-        if(optionsPopup) optionsPopup.style.display = 'none';
+        if (optionsPopup) optionsPopup.style.display = 'none';
     });
-    if(optionsPopup) optionsPopup.addEventListener('click', (e) => e.stopPropagation());
+    if (optionsPopup) optionsPopup.addEventListener('click', (e) => e.stopPropagation());
 
     const showVolumeOnVFD = () => {
         if (vfdDisplay.classList.contains('power-off')) return;
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     volumeKnob.addEventListener('mouseenter', showVolumeOnVFD);
-    
+
     muteBtn.addEventListener('click', () => {
         audio.muted = !audio.muted;
         muteLed.classList.toggle('active');
@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playPauseBtn.addEventListener('click', () => {
         if (!audio.src) return;
-        initVisualizer(); 
+        initVisualizer();
         if (audio.paused) {
             audio.play();
             playPauseBtn.classList.add('active');
