@@ -339,5 +339,4 @@ For issues, suggestions, or contributions, please contact the author or submit f
 Special thanks to McIntosh Laboratory for decades of audio excellence that inspired this tribute project.
 
 -----
-<img width="1887" height="736" alt="8" src="https://github.com/user-attachments/assets/f766f16f-c75b-475d-b9cf-4a8b97f1c402" />
 **Experience premium audio playback with authentic McIntosh style! 🎵**
