@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isSeeking = false;
     const SEEK_STEP = 3;
 
+    // --- VARIABLES VOLUME (NOUVEAU) ---
+    let volumeInterval;
+
     // --- VISUALISEUR (VU-MÈTRE) ---
     const canvas = document.getElementById('vfd-visualizer');
     const ctx = canvas.getContext('2d');
@@ -531,13 +534,45 @@ document.addEventListener('DOMContentLoaded', () => {
         volTimeout = setTimeout(() => { if (!audio.muted) volContainer.classList.remove('visible'); }, 1500);
     };
 
-    volumeKnob.addEventListener('click', (e) => {
-        if (audio.muted) { audio.muted = false; muteLed.classList.remove('active'); }
+    // --- FONCTION ACTION VOLUME ---
+    const updateVolumeAction = (direction) => {
+        if (audio.muted) { 
+            audio.muted = false; 
+            muteLed.classList.remove('active'); 
+        }
+
+        if (direction === 'up') {
+            audio.volume = Math.min(1, audio.volume + 0.01);
+        } else {
+            audio.volume = Math.max(0, audio.volume - 0.01);
+        }
+
+        const rotationAngle = (audio.volume * 300) - 150;
+        const knobOuter = volumeKnob.parentElement;
+        knobOuter.style.transform = `rotate(${rotationAngle}deg)`;
+
+        showVolumeOnVFD();
+    };
+
+    // --- NOUVEAUX ÉCOUTEURS VOLUME (Appui long) ---
+    volumeKnob.addEventListener('mousedown', (e) => {
         const rect = volumeKnob.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        audio.volume = (x < rect.width / 2) ? Math.max(0, audio.volume - 0.05) : Math.min(1, audio.volume + 0.05);
-        showVolumeOnVFD();
+        const direction = (x < rect.width / 2) ? 'down' : 'up';
+
+        updateVolumeAction(direction);
+
+        volumeInterval = setInterval(() => {
+            updateVolumeAction(direction);
+        }, 50);
     });
+
+    const stopVolumeChange = () => {
+        clearInterval(volumeInterval);
+    };
+
+    volumeKnob.addEventListener('mouseup', stopVolumeChange);
+    volumeKnob.addEventListener('mouseleave', stopVolumeChange);
 
     volumeKnob.addEventListener('mouseenter', showVolumeOnVFD);
 
