@@ -4,7 +4,7 @@ A premium web-based audio player inspired by the legendary McIntosh audio equipm
 
 ![McIntosh_Logo](https://github.com/user-attachments/assets/546956b6-126e-48e9-b088-475e840d1fee)
 
-<img width="1848" height="703" alt="Capture d’écran 2026-02-05 124309" src="https://github.com/user-attachments/assets/fb9017d7-9760-4fd0-a695-d62f35507181" />
+<img width="1873" height="736" alt="Capture d’écran 2026-02-05 124309" src="https://github.com/user-attachments/assets/b70487b7-394e-453c-8476-df538f7c4c79" />
 
 ## Overview
 
