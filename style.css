@@ -1,7 +1,7 @@
 :root {
     --mc-green: #22ff22;
     --mc-blue: #33ccff;
-    --mc-gold: #ffd700;
+    --mc-gold: #786b46;
     --mc-dark: #1a1a1a;
     --mc-light: #c2c2c2;
     --mc-red: #ff0000;
@@ -34,24 +34,21 @@ body {
     overflow: hidden;
 }
 
+/* Rétablissement de tes côtés argentés d'origine */
 .silver-trim {
-    width: 60px; /* Légèrement plus large pour correspondre à la photo */
-    /* Dégradé simulant l'aluminium brossé avec une face centrale claire */
-    background: linear-gradient(to right, 
-        #888 0%, 
-        #ddd 15%, 
-        #eee 50%, 
-        #ddd 85%, 
-        #888 100%
-    );
+    width: 60px;
+    background: linear-gradient(to right,
+            #888 0%,
+            #ddd 15%,
+            #eee 50%,
+            #ddd 85%,
+            #888 100%);
     height: 100%;
     position: relative;
-    /* Ombre portée subtile sur le côté pour donner du relief par rapport au mur */
-    box-shadow: 5px 0 15px rgba(0,0,0,0.3), -5px 0 15px rgba(0,0,0,0.3);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3), -5px 0 15px rgba(0, 0, 0, 0.3);
     z-index: 10;
 }
 
-/* Ajout du biseau noir intérieur (la fine bordure noire entre l'argent et le verre) */
 .silver-trim.left {
     border-right: 4px solid #000;
 }
@@ -60,17 +57,17 @@ body {
     border-left: 4px solid #000;
 }
 
-/* Optionnel : Ajout d'une texture de brossage métallique */
 .silver-trim::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-        180deg,
-        rgba(0,0,0,0) 0px,
-        rgba(0,0,0,0.03) 1px,
-        rgba(255,255,255,0.03) 2px
-    );
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(180deg,
+            rgba(0, 0, 0, 0) 0px,
+            rgba(0, 0, 0, 0.03) 1px,
+            rgba(255, 255, 255, 0.03) 2px);
     pointer-events: none;
 }
 
@@ -123,6 +120,14 @@ body {
     overflow: hidden;
 }
 
+/* --- MISE À JOUR POLICE BITCOUNT --- */
+#track-number, #time-display, #vol-display {
+    font-family: 'Bitcount Single', sans-serif !important;
+    font-weight: 300;
+    font-size: 2.8rem;
+    letter-spacing: -1px;
+}
+
 .vfd-display.power-off {
     background: var(--vfd-off) !important;
     border-color: #050505 !important;
@@ -134,7 +139,6 @@ body {
     transition: opacity 0.2s ease;
 }
 
-/* Compteurs Haut */
 .track-counter, .time-counter, .volume-center {
     position: absolute;
     top: 20px;
@@ -160,16 +164,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    /* Aligne le label et le compteur à droite */
 }
 
 .time-wrapper {
     display: flex;
     flex-direction: row;
-    /* Aligne le temps et le symbole sur la même ligne */
     align-items: baseline;
-    gap: 15px;
-    /* Espace entre le chrono et le symbole */
+    gap: 8px;
 }
 
 .volume-center {
@@ -197,7 +198,6 @@ body {
     opacity: 0.8;
 }
 
-/* Zone Centrale (Titre / Artiste) */
 .display-content {
     display: flex;
     flex-direction: column;
@@ -234,10 +234,9 @@ body {
 }
 
 .separator {
-    color: var(--mc-green);
+    color: var(--mc-blue);
 }
 
-/* --- VU-MÈTRE --- */
 .visualizer-container {
     position: absolute;
     bottom: 5px;
@@ -266,7 +265,6 @@ body {
     padding: 0 5px;
 }
 
-/* --- BOUTONS ROTATIFS --- */
 .knob-container {
     width: 350px;
     display: flex;
@@ -279,7 +277,6 @@ body {
 .knob-outer {
     width: 160px;
     height: 160px;
-    /* On utilise un dégradé avec des arrêts nets pour simuler la réflexion de la lumière */
     background: linear-gradient(145deg,
             #d1d1d1 0%,
             #ffffff 15%,
@@ -292,9 +289,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Bordure métallique plus cohérente avec le chrome que le noir pur */
     border: 2px solid #888;
-    /* Double ombre : une portée pour le relief et une interne pour l'éclat du bord */
     box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.8),
         inset 0 2px 4px rgba(255, 255, 255, 0.9);
@@ -324,7 +319,6 @@ body {
     text-align: center;
 }
 
-/* --- BOUTONS DU BAS (CENTRE ET ALIGNEMENT) --- */
 .bottom-row {
     display: flex;
     width: 100%;
@@ -334,16 +328,13 @@ body {
     box-sizing: border-box;
 }
 
-/* On donne la même largeur que les knob-containers pour l'alignement vertical */
 .transport-buttons, .utility-buttons {
     display: flex;
     gap: 20px;
     justify-content: center;
-    /* Centre les petits boutons à l'intérieur de la zone du Knob */
     align-items: flex-end;
     position: relative;
     width: 350px;
-    /* Doit être identique à .knob-container */
 }
 
 .btn-wrapper {
@@ -366,7 +357,6 @@ body {
 
 .btn-transport, .btn-round {
     background: linear-gradient(180deg, #1d1d1d, #050505);
-    /* Ton cadre extérieur bombé de 5px */
     border: 5px solid #2c2c2c;
     width: 65px;
     height: 45px;
@@ -375,17 +365,29 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
+    /* Transition plus rapide pour l'appui */
     box-sizing: border-box;
-
-    /* On combine ton ombre portée avec la bordure noire interne de 2px */
     box-shadow:
         0 4px 0 #000000,
-        /* Ombre sous le bouton */
         inset 0 0 0 4px #000000,
-        /* LA BORDURE NOIRE DE 2PX */
         inset 0 3px 5px rgba(12, 12, 12, 0.5);
-    /* Ombre pour l'effet de profondeur */
+    position: relative;
+    top: 0;
+}
+
+/* --- EFFET D'APPUI SUR LES BOUTONS --- */
+.btn-transport:active, .btn-round:active {
+    top: 3px;
+    /* Le bouton descend */
+    box-shadow:
+        0 1px 0 #000000,
+        /* L'ombre sous le bouton s'écrase */
+        inset 0 0 0 4px #000000,
+        inset 0 3px 10px rgba(0, 0, 0, 0.8);
+    /* L'ombre interne se renforce */
+    filter: brightness(0.8);
+    /* Le bouton s'assombrit légèrement */
 }
 
 .btn-round.standby {
@@ -393,14 +395,17 @@ body {
     border: 5px solid #2c2c2c;
     box-shadow:
         0 4px 0 #000000,
-        /* Ombre sous le bouton */
         inset 0 0 0 4px #000000,
-        /* LA BORDURE NOIRE DE 2PX */
         inset 0 3px 5px rgba(12, 12, 12, 0.5);
-    /* Ombre pour l'effet de profondeur */
 }
 
-/* LEDS */
+.btn-round.standby:active {
+    box-shadow:
+        0 1px 0 #000000,
+        inset 0 0 0 4px #000000,
+        inset 0 3px 10px rgba(0, 0, 0, 0.8);
+}
+
 .led {
     width: 8px;
     height: 8px;
@@ -419,7 +424,6 @@ body {
     box-shadow: 0 0 10px var(--mc-red);
 }
 
-/* LIGNE GOLD */
 .streaming-label-container {
     position: absolute;
     width: 100%;
@@ -445,13 +449,6 @@ body {
     font-size: small;
 }
 
-/* --- FORMAT ET CHIFFRES --- */
-#track-number, #time-display, #vol-display {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 300;
-    font-size: 1.4rem;
-}
-
 #file-format {
     color: var(--mc-green);
     font-family: 'Orbitron', sans-serif;
@@ -467,7 +464,6 @@ body {
     opacity: 0.6;
 }
 
-/* MODAL */
 .modal {
     display: none;
     position: fixed;
@@ -494,7 +490,8 @@ body {
     width: 480px;
     height: 480px;
     object-fit: cover;
-    border: 1px solid var(--mc-green);
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
     display: block;
     margin: 15px auto;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
@@ -502,61 +499,19 @@ body {
 
 .status-symbol {
     font-size: 1.0rem;
-    /* Réduis ou augmente cette valeur (ex: 1.2rem, 18px, etc.) */
     color: var(--mc-green);
-
     line-height: 1;
-    /* Assure que le symbole ne pousse pas la ligne vers le haut */
-}
-
-.tone-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    border-top: 1px solid #222;
-    padding-top: 10px;
-}
-
-.tone-label {
-    color: var(--mc-gold);
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-}
-
-.opt-btn {
-    background: #111;
-    border: 1px solid var(--mc-blue);
-    color: var(--mc-blue);
-    padding: 8px 12px;
-    font-size: 10px;
-    cursor: pointer;
-    flex: 1;
-    transition: all 0.2s;
-}
-
-.opt-btn:hover {
-    background: var(--mc-blue);
-    color: #000;
-}
-
-.reset-btn {
-    width: 100%;
-    border-color: var(--mc-gold);
-    color: var(--mc-gold);
 }
 
 .options-menu {
     display: none;
     position: absolute;
     bottom: 110px;
-    /* Positionné juste au-dessus de la ligne de boutons */
     right: 40px;
-    /* Aligné avec le bloc de droite */
     width: 220px;
     background: rgba(0, 0, 0, 0.9);
-    border: 1px solid var(--mc-gold);
-    border-radius: 2px;
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
     padding: 25px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(51, 204, 255, 0.1);
     z-index: 3000;
@@ -569,7 +524,6 @@ body {
     display: flex;
     justify-content: center;
     gap: 25px;
-    /* Même espacement que tes boutons de châssis */
     width: 100%;
 }
 
@@ -584,83 +538,28 @@ body {
 .tone-separator-line {
     width: 95%;
     height: 1px;
-    background: #ffd700;
-}
-
-/* On s'assure que les boutons dans le pop-up gardent leur taille */
-.options-menu .btn-round {
-    width: 55px;
-    /* Un peu plus petit pour le pop-up si besoin, sinon 65px */
-    height: 38px;
-}
-
-.options-menu .btn-label {
-    font-size: 9px !important;
-}
-
-/* --- AJUSTEMENT DE LA PROXIMITÉ DU SYMBOLE --- */
-
-.time-wrapper {
-    display: flex;
-    align-items: baseline;
-    /* Aligne le bas du symbole sur le bas des chiffres */
-    justify-content: flex-end;
-    gap: 8px;
-    /* MODIFIE CETTE VALEUR : plus le chiffre est petit, plus le symbole est proche */
-}
-
-#time-display {
-    display: inline-block;
-    /* On réduit cette largeur pour coller le symbole au temps */
-    /* 85px est idéal pour la police Digital-7 en taille standard */
-    min-width: 65px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    /* Empêche les chiffres de "sauter" */
+    background: var(--mc-gold);
 }
 
 #status-icon {
     display: flex;
     align-items: center;
     width: 20px;
-    /* Largeur fixe pour l'icône pour éviter tout mouvement */
 }
 
-#random-indicator {
+#random-indicator, #repeat-indicator, #ab-indicator {
     font-family: 'Roboto', sans-serif;
     color: var(--mc-blue);
-    /* La couleur bleue McIntosh de ton format */
     font-size: 10px;
-    /* À ajuster selon la taille de ton 'file-format' */
-    text-transform: uppercase;
-}
-
-#repeat-indicator {
-    font-family: 'Roboto', sans-serif;
-    color: var(--mc-blue);
-    /* La couleur bleue McIntosh de ton format */
-    font-size: 10px;
-    /* À ajuster selon la taille de ton 'file-format' */
-    text-transform: uppercase;
-}
-
-#ab-indicator {
-    font-family: 'Roboto', sans-serif;
-    color: var(--mc-blue);
-    /* La couleur bleue McIntosh de ton format */
-    font-size: 10px;
-    /* À ajuster selon la taille de ton 'file-format' */
     text-transform: uppercase;
 }
 
 .gold-text {
     color: var(--mc-gold);
-    /* La couleur or de base */
     text-transform: uppercase;
     font-weight: normal;
 }
 
-/* Effet de pression sur le bouton Input */
 #input-knob {
     transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
     cursor: pointer;
@@ -668,11 +567,8 @@ body {
 
 #input-knob:active {
     transform: scale(0.95);
-    /* Le bouton rétrécit légèrement */
     filter: brightness(1.2);
-    /* Il devient un peu plus brillant */
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 102, 0.3);
-    /* Ombre interne + lueur externe */
 }
 
 .options-logo-container {
@@ -683,10 +579,67 @@ body {
 
 .options-logo {
     max-width: 120px;
-    /* Ajuste la taille selon tes besoins */
     height: auto;
     display: block;
     margin: 0 auto;
     filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
-    /* Optionnel: petite ombre sous le logo */
+}
+
+/* Pour le nom de l'album spécifiquement */
+#album-name, #artist-name {
+    font-family: 'Bitcount Single', sans-serif !important;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+/* Conteneur spécifique pour la playlist */
+.playlist-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #050505;
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: left;
+    /* Aligne le contenu à gauche */
+}
+
+/* Bouton fermer de la playlist */
+.close-playlist {
+    float: right;
+    cursor: pointer;
+    color: var(--mc-green);
+    font-size: 30px;
+    line-height: 20px;
+}
+
+/* Titre de la playlist */
+.playlist-title {
+    color: var(--mc-green);
+    font-family: 'Roboto', sans-serif;
+    border-bottom: 1px solid var(--mc-green);
+    padding-bottom: 10px;
+    margin-top: 0;
+    letter-spacing: 2px;
+}
+
+/* Liste des morceaux */
+#playlist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--mc-blue);
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Style optionnel pour les éléments de la liste (li) */
+#playlist-items li {
+    padding: 10px;
+    border-bottom: 1px solid #1a1a1a;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#playlist-items li:hover {
+    background: rgba(51, 204, 255, 0.1);
 }
