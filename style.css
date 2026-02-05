@@ -1,7 +1,7 @@
 :root {
     --mc-green: #22ff22;
     --mc-blue: #33ccff;
-    --mc-gold: #ffd700;
+    --mc-gold: #786b46;
     --mc-dark: #1a1a1a;
     --mc-light: #c2c2c2;
     --mc-red: #ff0000;
@@ -365,12 +365,24 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease; /* Transition plus rapide pour l'appui */
     box-sizing: border-box;
     box-shadow:
         0 4px 0 #000000,
         inset 0 0 0 4px #000000,
         inset 0 3px 5px rgba(12, 12, 12, 0.5);
+    position: relative;
+    top: 0;
+}
+
+/* --- EFFET D'APPUI SUR LES BOUTONS --- */
+.btn-transport:active, .btn-round:active {
+    top: 3px; /* Le bouton descend */
+    box-shadow: 
+        0 1px 0 #000000, /* L'ombre sous le bouton s'écrase */
+        inset 0 0 0 4px #000000,
+        inset 0 3px 10px rgba(0, 0, 0, 0.8); /* L'ombre interne se renforce */
+    filter: brightness(0.8); /* Le bouton s'assombrit légèrement */
 }
 
 .btn-round.standby {
@@ -380,6 +392,13 @@ body {
         0 4px 0 #000000,
         inset 0 0 0 4px #000000,
         inset 0 3px 5px rgba(12, 12, 12, 0.5);
+}
+
+.btn-round.standby:active {
+    box-shadow: 
+        0 1px 0 #000000,
+        inset 0 0 0 4px #000000,
+        inset 0 3px 10px rgba(0, 0, 0, 0.8);
 }
 
 .led {
