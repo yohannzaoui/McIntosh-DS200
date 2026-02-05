@@ -37,16 +37,15 @@ body {
 /* Rétablissement de tes côtés argentés d'origine */
 .silver-trim {
     width: 60px;
-    background: linear-gradient(to right, 
-        #888 0%, 
-        #ddd 15%, 
-        #eee 50%, 
-        #ddd 85%, 
-        #888 100%
-    );
+    background: linear-gradient(to right,
+            #888 0%,
+            #ddd 15%,
+            #eee 50%,
+            #ddd 85%,
+            #888 100%);
     height: 100%;
     position: relative;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.3), -5px 0 15px rgba(0,0,0,0.3);
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3), -5px 0 15px rgba(0, 0, 0, 0.3);
     z-index: 10;
 }
 
@@ -61,13 +60,14 @@ body {
 .silver-trim::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-        180deg,
-        rgba(0,0,0,0) 0px,
-        rgba(0,0,0,0.03) 1px,
-        rgba(255,255,255,0.03) 2px
-    );
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(180deg,
+            rgba(0, 0, 0, 0) 0px,
+            rgba(0, 0, 0, 0.03) 1px,
+            rgba(255, 255, 255, 0.03) 2px);
     pointer-events: none;
 }
 
@@ -365,7 +365,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: all 0.1s ease; /* Transition plus rapide pour l'appui */
+    transition: all 0.1s ease;
+    /* Transition plus rapide pour l'appui */
     box-sizing: border-box;
     box-shadow:
         0 4px 0 #000000,
@@ -377,12 +378,16 @@ body {
 
 /* --- EFFET D'APPUI SUR LES BOUTONS --- */
 .btn-transport:active, .btn-round:active {
-    top: 3px; /* Le bouton descend */
-    box-shadow: 
-        0 1px 0 #000000, /* L'ombre sous le bouton s'écrase */
+    top: 3px;
+    /* Le bouton descend */
+    box-shadow:
+        0 1px 0 #000000,
+        /* L'ombre sous le bouton s'écrase */
         inset 0 0 0 4px #000000,
-        inset 0 3px 10px rgba(0, 0, 0, 0.8); /* L'ombre interne se renforce */
-    filter: brightness(0.8); /* Le bouton s'assombrit légèrement */
+        inset 0 3px 10px rgba(0, 0, 0, 0.8);
+    /* L'ombre interne se renforce */
+    filter: brightness(0.8);
+    /* Le bouton s'assombrit légèrement */
 }
 
 .btn-round.standby {
@@ -395,7 +400,7 @@ body {
 }
 
 .btn-round.standby:active {
-    box-shadow: 
+    box-shadow:
         0 1px 0 #000000,
         inset 0 0 0 4px #000000,
         inset 0 3px 10px rgba(0, 0, 0, 0.8);
@@ -485,7 +490,8 @@ body {
     width: 480px;
     height: 480px;
     object-fit: cover;
-    border: 1px solid var(--mc-green);
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
     display: block;
     margin: 15px auto;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
@@ -504,8 +510,8 @@ body {
     right: 40px;
     width: 220px;
     background: rgba(0, 0, 0, 0.9);
-    border: 1px solid var(--mc-gold);
-    border-radius: 2px;
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
     padding: 25px;
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(51, 204, 255, 0.1);
     z-index: 3000;
@@ -532,7 +538,7 @@ body {
 .tone-separator-line {
     width: 95%;
     height: 1px;
-    background: #ffd700;
+    background: var(--mc-gold);
 }
 
 #status-icon {
@@ -584,4 +590,56 @@ body {
     font-family: 'Bitcount Single', sans-serif !important;
     font-size: 20px;
     text-transform: uppercase;
+}
+
+/* Conteneur spécifique pour la playlist */
+.playlist-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #050505;
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: left;
+    /* Aligne le contenu à gauche */
+}
+
+/* Bouton fermer de la playlist */
+.close-playlist {
+    float: right;
+    cursor: pointer;
+    color: var(--mc-green);
+    font-size: 30px;
+    line-height: 20px;
+}
+
+/* Titre de la playlist */
+.playlist-title {
+    color: var(--mc-green);
+    font-family: 'Roboto', sans-serif;
+    border-bottom: 1px solid var(--mc-green);
+    padding-bottom: 10px;
+    margin-top: 0;
+    letter-spacing: 2px;
+}
+
+/* Liste des morceaux */
+#playlist-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--mc-blue);
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Style optionnel pour les éléments de la liste (li) */
+#playlist-items li {
+    padding: 10px;
+    border-bottom: 1px solid #1a1a1a;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#playlist-items li:hover {
+    background: rgba(51, 204, 255, 0.1);
 }
