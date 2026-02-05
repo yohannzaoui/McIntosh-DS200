@@ -4,7 +4,7 @@ A premium web-based audio player inspired by the legendary McIntosh audio equipm
 
 ![McIntosh_Logo](https://github.com/user-attachments/assets/546956b6-126e-48e9-b088-475e840d1fee)
 
-<img width="1865" height="699" alt="McIntosh DS200 Interface" src="https://github.com/user-attachments/assets/978e8101-0bc0-40cf-b13e-2c0671174db2" />
+<img width="1848" height="703" alt="Capture d’écran 2026-02-05 124309" src="https://github.com/user-attachments/assets/fb9017d7-9760-4fd0-a695-d62f35507181" />
 
 ## Overview
 
