@@ -458,7 +458,7 @@ body {
 }
 
 #bitrate-display {
-    color: var(--mc-green);
+    color: var(--mc-blue);
     font-family: 'Orbitron', sans-serif;
     font-size: 0.6rem;
     opacity: 0.6;
@@ -499,7 +499,7 @@ body {
 
 .status-symbol {
     font-size: 1.0rem;
-    color: var(--mc-green);
+    color: var(--mc-blue);
     line-height: 1;
 }
 
