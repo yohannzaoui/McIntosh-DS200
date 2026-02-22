@@ -621,5 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => window.location.reload(), 500);
     });
 
-    audio.volume = 0.2;
+    audio.volume = 0.05;
+    const knobOuter = volumeKnob.parentElement;
+    knobOuter.style.transform = `rotate(${(audio.volume * 300) - 150}deg)`;
 });
