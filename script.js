@@ -624,4 +624,53 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.volume = 0.05;
     const knobOuter = volumeKnob.parentElement;
     knobOuter.style.transform = `rotate(${(audio.volume * 300) - 150}deg)`;
+
+    // --- DRAG & DROP ---
+    const dropOverlay = document.getElementById('drop-overlay');
+    const ACCEPTED_TYPES = ['audio/mpeg', 'audio/flac', 'audio/wav', 'audio/x-wav', 'audio/mp4', 'video/mp4'];
+    const ACCEPTED_EXT = /\.(mp3|flac|wav|mp4)$/i;
+    let dragCounter = 0;
+
+    const isAudioFile = (file) =>
+        ACCEPTED_TYPES.includes(file.type) || ACCEPTED_EXT.test(file.name);
+
+    document.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        const hasAudio = Array.from(e.dataTransfer.items).some(
+            item => item.kind === 'file'
+        );
+        if (hasAudio) dropOverlay.classList.add('active');
+    });
+
+    document.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dragCounter = 0;
+            dropOverlay.classList.remove('active');
+        }
+    });
+
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    });
+
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        dropOverlay.classList.remove('active');
+
+        const files = Array.from(e.dataTransfer.files).filter(isAudioFile);
+        if (files.length === 0) return;
+
+        playlist = files;
+        currentIndex = 0;
+        loadTrack(currentIndex);
+        playPauseBtn.classList.add('active');
+        statusIcon.innerHTML = '<i class="fa-solid fa-play"></i>';
+        initVisualizer();
+        audio.play().catch(err => console.log('Lecture auto bloquée:', err));
+    });
 });

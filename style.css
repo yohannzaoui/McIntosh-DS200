@@ -101,7 +101,7 @@ body {
     box-sizing: border-box;
 }
 
-/* --- ÉCRAN VFD --- */
+/* --- VFD SCREEN --- */
 .vfd-display {
     width: 800px;
     height: 300px;
@@ -120,7 +120,6 @@ body {
     overflow: hidden;
 }
 
-/* --- MISE À JOUR POLICE BITCOUNT --- */
 #track-number, #time-display, #vol-display {
     font-family: 'Bitcount Single', sans-serif !important;
     font-weight: 300;
@@ -376,7 +375,7 @@ body {
     top: 0;
 }
 
-/* --- EFFET D'APPUI SUR LES BOUTONS --- */
+/* --- BUTTON PRESS EFFECT --- */
 .btn-transport:active, .btn-round:active {
     top: 3px;
     /* Le bouton descend */
@@ -642,4 +641,61 @@ body {
 
 #playlist-items li:hover {
     background: rgba(51, 204, 255, 0.1);
+}
+
+/* --- DRAG & DROP OVERLAY --- */
+.drop-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    pointer-events: none;
+}
+
+.drop-overlay.active {
+    display: flex;
+}
+
+.drop-overlay-box {
+    border: 2px dashed #33ccff;
+    border-radius: 12px;
+    padding: 40px 60px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(51, 204, 255, 0.25), inset 0 0 30px rgba(51, 204, 255, 0.05);
+    animation: drop-pulse 1.2s ease-in-out infinite;
+}
+
+.drop-overlay-icon {
+    font-size: 3rem;
+    color: #33ccff;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.drop-overlay-text {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: #33ccff;
+    text-transform: uppercase;
+}
+
+.drop-overlay-sub {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: rgba(51, 204, 255, 0.5);
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+@keyframes drop-pulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(51, 204, 255, 0.2), inset 0 0 20px rgba(51, 204, 255, 0.03); }
+    50% { box-shadow: 0 0 60px rgba(51, 204, 255, 0.45), inset 0 0 40px rgba(51, 204, 255, 0.08); }
 }
