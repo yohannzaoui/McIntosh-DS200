@@ -1,5 +1,5 @@
 :root {
-    --mc-green: #22ff22;
+    --mc-green: #0dd90d;
     --mc-blue: #33ccff;
     --mc-gold: #786b46;
     --mc-dark: #1a1a1a;
@@ -19,7 +19,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 /* Dimensions 1800x650 */
