@@ -1,4 +1,4 @@
-# McIntosh DS200 Network Player
+# Inspired by McIntosh DS200 Network Player
 
 A premium web-based audio player inspired by the legendary McIntosh audio equipment, featuring an authentic VFD display, real-time spectrum analyzer, and comprehensive playback controls.
 
