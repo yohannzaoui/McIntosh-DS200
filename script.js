@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.style.borderBottom = "1px solid #111";
             li.style.cursor = "pointer";
             if (index === currentIndex) {
-                li.style.color = "#00ff00";
+                li.style.color = "#33ccff";
                 li.innerHTML = `▶ ${index + 1}. ${file.name.toUpperCase()}`;
             } else {
                 li.style.color = "#33ccff";
@@ -621,5 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => window.location.reload(), 500);
     });
 
-    audio.volume = 0.2;
+    audio.volume = 0.05;
+    const knobOuter = volumeKnob.parentElement;
+    knobOuter.style.transform = `rotate(${(audio.volume * 300) - 150}deg)`;
 });
