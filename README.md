@@ -2,8 +2,7 @@
 
 A premium web-based audio player inspired by the iconic **McIntosh DS200 Network Player**, faithfully recreating its vacuum fluorescent display, rotary controls, and high-end aesthetic using modern web technologies.
 
-![McIntosh_Logo](https://github.com/user-attachments/assets/546956b6-126e-48e9-b088-475e840d1fee)
-
+![550108549-7bc36eb4-3abf-4167-862a-a5e87df7afc9](https://github.com/user-attachments/assets/357fae73-8242-4ad4-ab8f-7c5d6351a1a8)
 <img width="1873" height="736" alt="McIntosh DS200 Web Player" src="https://github.com/user-attachments/assets/b70487b7-394e-453c-8476-df538f7c4c79" />
 
 ---
