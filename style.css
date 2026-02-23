@@ -559,7 +559,7 @@ body {
     display: none;
     position: absolute;
     bottom: 110px;
-    right: 40px;
+    right: 70px;
     width: 220px;
     background: rgba(0, 0, 0, 0.9);
     border: 5px solid var(--mc-gold);
