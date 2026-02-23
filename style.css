@@ -239,7 +239,6 @@ body {
     text-shadow: 0 0 8px rgba(51, 204, 255, 0.5);
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
     max-width: 95%;
     cursor: pointer;
     margin-top: 30px;
