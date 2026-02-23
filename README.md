@@ -9,9 +9,9 @@ A premium web-based audio player inspired by the iconic **McIntosh DS200 Network
 
 ## Overview
 
-McIntosh DS200 is a fully functional, zero-dependency web audio player that runs entirely in the browser. It simulates the premium hardware experience of McIntosh Laboratory components — complete with an authentic VFD display, real-time spectrum analysis, tone controls, and a meticulously crafted brushed-metal interface.
+McIntosh DS200 is a fully functional audio player available both as a **web app** (runs entirely in the browser) and as a **native desktop application** built with Electron. It simulates the premium hardware experience of McIntosh Laboratory components — complete with an authentic VFD display, real-time spectrum analysis, tone controls, and a meticulously crafted brushed-metal interface.
 
-No installation required. No backend. No framework. Open `index.html` and play.
+No backend. No framework. Open `index.html` in a browser, or run the Electron app for full OS integration including multimedia keyboard shortcuts and Windows taskbar controls.
 
 ---
 
@@ -98,6 +98,14 @@ Audio Source → Bass Filter (200Hz) → Treble Filter (3000Hz) → Analyzer (FF
 - **Options Popup** — Floating panel for Shuffle, Repeat, A-B, and Tone controls; closes on outside click
 - **Standby Button** — Red button triggers a clean application reload
 
+### Desktop App (Electron)
+
+- **Multimedia Keyboard Shortcuts** — Play/Pause, Next, Previous keys work system-wide, even when the app is in the background
+- **Windows Taskbar Controls** — Thumbnail toolbar with ⏮ / ▶⏸ / ⏭ buttons directly in the Windows taskbar preview; icon updates live with playback state
+- **"Open With" Support** — Associate audio files (MP3, FLAC, WAV, MP4, M4A, AAC, OGG) with the app; double-clicking a file or dragging it onto the app icon loads and plays it immediately
+- **Single Instance** — A second launch passes its files to the running instance instead of opening a new window
+- **Portable Build** — Packages as a single `.exe` with no installation required (via `electron-builder`)
+
 ---
 
 ## Getting Started
@@ -113,16 +121,35 @@ A modern browser with Web Audio API support:
 | Safari | 14+ |
 | Opera | 76+ |
 
-### Running the Application
+For the desktop app: **Node.js 18+** and **npm**.
+
+### Running in the Browser
 
 1. Download or clone this repository
 2. Open `index.html` in your browser — no server required
+
+### Running as a Desktop App (Electron)
+
+```bash
+npm install
+npm start
+```
+
+### Building a Portable Windows Executable
+
+```bash
+npm run dist
+```
+
+The output `.exe` will be in the `dist/` folder — no installation required.
 
 ```
 McIntosh-DAP-DS200/
 ├── index.html
 ├── style.css
 ├── script.js
+├── main.js              # Electron main process
+├── package.json
 ├── manifest.json
 ├── README.md
 ├── LICENSE
@@ -130,6 +157,11 @@ McIntosh-DAP-DS200/
 │   ├── logo_ref.png
 │   ├── logo_b.png
 │   └── favicon.png
+├── windows/             # Taskbar button icons
+│   ├── play.png
+│   ├── pause.png
+│   ├── prev.png
+│   └── next.png
 └── fontawesome7/
 ```
 
@@ -226,6 +258,8 @@ analyser.fftSize = 64; // Options: 32, 64, 128, 256, 512
 | Canvas API | Real-time spectrum visualizer |
 | MediaSession API | OS-level media controls |
 | jsmediatags 3.9.5 | ID3 tag / metadata extraction |
+| Electron 26 | Desktop app wrapper, IPC, global shortcuts |
+| electron-builder | Portable Windows executable packaging |
 | Font Awesome 7 | UI icons |
 | Google Fonts — Bitcount Single | VFD digital display |
 | Google Fonts — Roboto 300 | UI labels |
@@ -248,7 +282,8 @@ analyser.fftSize = 64; // Options: 32, 64, 128, 256, 512
 **Author** — Yohann Zaoui  
 **Design Inspiration** — McIntosh Laboratory, Inc.  
 **Icon Library** — Font Awesome 7  
-**Metadata Parser** — jsmediatags 3.9.5
+**Metadata Parser** — jsmediatags 3.9.5  
+**Desktop Framework** — Electron / electron-builder
 
 ---
 
@@ -259,6 +294,14 @@ This project is released for educational and personal use. McIntosh is a registe
 ---
 
 ## Changelog
+
+### v1.2
+- **Electron desktop app** — full native Windows support
+- **Multimedia keyboard shortcuts** — Play/Pause, Next, Previous keys handled via `globalShortcut` (work system-wide)
+- **Windows taskbar controls** — thumbnail toolbar with live ▶/⏸ icon update via IPC
+- **"Open With" integration** — associate audio files with the app; files passed at launch or from a second instance are routed to the running player
+- **Portable build** — single `.exe` output via `electron-builder`
+- **IPC bridge** — `main.js` ↔ `script.js` communication for all media controls and file loading
 
 ### v1.1
 - Drag & Drop file loading with animated overlay
@@ -280,4 +323,4 @@ This project is released for educational and personal use. McIntosh is a registe
 
 ---
 
-*Experience premium audio, browser-native.*
+*Experience premium audio — browser-native or desktop.*
