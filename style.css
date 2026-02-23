@@ -41,28 +41,37 @@ body {
 
 /* Côtés argentés positionnés par-dessus le chassis */
 .silver-trim {
-    width: 60px;
-    background: linear-gradient(to right,
-            #888 0%,
-            #ddd 15%,
-            #eee 50%,
-            #ddd 85%,
-            #888 100%);
+    width: 55px;
     height: var(--trim-height);
     top: var(--trim-top);
     position: absolute;
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3), -5px 0 15px rgba(0, 0, 0, 0.3);
     z-index: 20;
 }
 
 .silver-trim.left {
     left: 0;
-    border-right: 4px solid #000;
+    background: linear-gradient(to right,
+            #e0e0e0 0%,
+            #ffffff 15%,
+            #bdbdbd 40%,
+            #9e9e9e 90%,
+            #444444 100%
+    );
+    box-shadow: -5px 15px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 2px 0 0 2px;
 }
 
 .silver-trim.right {
     right: 0;
-    border-left: 4px solid #000;
+    background: linear-gradient(to left,
+            #e0e0e0 0%,
+            #ffffff 15%,
+            #bdbdbd 40%,
+            #9e9e9e 90%,
+            #444444 100%
+    );
+    box-shadow: 5px 15px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 0 2px 2px 0;
 }
 
 .silver-trim::before {
@@ -70,13 +79,15 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(180deg,
-            rgba(0, 0, 0, 0) 0px,
-            rgba(0, 0, 0, 0.03) 1px,
-            rgba(255, 255, 255, 0.03) 2px);
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            transparent,
+            transparent 1px,
+            rgba(255, 255, 255, 0.1) 1px,
+            rgba(255, 255, 255, 0.1) 2px);
     pointer-events: none;
+    opacity: 0.5;
 }
 
 .front-panel {
@@ -87,8 +98,8 @@ body {
     align-items: center;
     justify-content: space-between;
     background: radial-gradient(circle at center, #080808 0%, #000 100%);
-    margin-left: 60px;
-    margin-right: 60px;
+    margin-left: 55px;
+    margin-right: 55px;
 }
 
 .mc-header {
