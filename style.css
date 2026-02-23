@@ -374,55 +374,87 @@ body {
     text-align: center;
 }
 
+/* --- BOUTONS : style laqué arrondi --- */
 .btn-transport, .btn-round {
-    background: linear-gradient(180deg, #1d1d1d, #050505);
-    border: 5px solid #2c2c2c;
-    width: 65px;
-    height: 45px;
-    border-radius: 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.1s ease;
-    /* Transition plus rapide pour l'appui */
-    box-sizing: border-box;
-    box-shadow:
-        0 4px 0 #000000,
-        inset 0 0 0 4px #000000,
-        inset 0 3px 5px rgba(12, 12, 12, 0.5);
     position: relative;
+    width: 65px;
+    height: 48px;
+    background: linear-gradient(180deg,
+            #353535 0%,
+            #1a1a1a 40%,
+            #0a0a0a 50%,
+            #000000 100%);
+    border-radius: 90% / 20px;
+    border: 1px solid #3a3a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    overflow: hidden;
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.9),
+        inset 0 2px 3px rgba(255, 255, 255, 0.3),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.7);
+    box-sizing: border-box;
     top: 0;
+}
+
+.btn-transport::after, .btn-round::after {
+    content: "";
+    width: 85%;
+    height: 70%;
+    background: #0d0d0d;
+    border-radius: 100% / 15px;
+    transform: translateY(1px);
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.8),
+        0 -1px 2px rgba(255, 255, 255, 0.15);
+    border: 1px solid #222;
+    transition: all 0.1s ease;
+    pointer-events: none;
 }
 
 /* --- BUTTON PRESS EFFECT --- */
 .btn-transport:active, .btn-round:active {
-    top: 3px;
-    /* Le bouton descend */
+    transform: translateY(2px);
     box-shadow:
-        0 1px 0 #000000,
-        /* L'ombre sous le bouton s'écrase */
-        inset 0 0 0 4px #000000,
-        inset 0 3px 10px rgba(0, 0, 0, 0.8);
-    /* L'ombre interne se renforce */
-    filter: brightness(0.8);
-    /* Le bouton s'assombrit légèrement */
+        0 2px 5px rgba(0, 0, 0, 0.9),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
-.btn-round.standby {
-    background: #a10101;
-    border: 5px solid #2c2c2c;
+.btn-transport:active::after, .btn-round:active::after {
+    transform: translateY(1px) scale(0.96);
     box-shadow:
-        0 4px 0 #000000,
-        inset 0 0 0 4px #000000,
-        inset 0 3px 5px rgba(12, 12, 12, 0.5);
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        inset 0 2px 5px rgba(0, 0, 0, 0.6);
+    background: #050505;
+}
+
+/* --- BOUTON STANDBY (rouge) --- */
+.btn-round.standby {
+    background: #1a1a1a;
+}
+
+.btn-round.standby::after {
+    background: radial-gradient(circle, #912624 0%, #912624 100%);
+    border: 2px solid #000;
+    box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.8),
+        0 -1px 2px rgba(255, 255, 255, 0.2);
 }
 
 .btn-round.standby:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+.btn-round.standby:active::after {
+    transform: translateY(1px) scale(0.98);
+    background: radial-gradient(circle, #912624 0%, #912624 100%);
     box-shadow:
-        0 1px 0 #000000,
-        inset 0 0 0 4px #000000,
-        inset 0 3px 10px rgba(0, 0, 0, 0.8);
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        inset 0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
 .led {
