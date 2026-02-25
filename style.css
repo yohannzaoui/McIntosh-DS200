@@ -5,10 +5,10 @@
     --mc-dark: #1a1a1a;
     --mc-light: #c2c2c2;
     --mc-red: #ff0000;
-    --vfd-background: #020502;
-    --vfd-off: #000;
+    --vfd-background: #020202;
+    --vfd-off: #020202;
     --backgound-color: #666666;
-    --chassis-color: #000;
+    --chassis-color: #080808;
 
     /* === TRIM SETTINGS === */
     --trim-height: 670px;   /* hauteur totale des trims */
@@ -127,7 +127,9 @@ body {
     width: 800px;
     height: 300px;
     background: var(--vfd-background);
-    border: 3px solid #111;
+    border: 3px solid #111111;
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+    border-radius: 2px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -137,7 +139,7 @@ body {
     font-size: 2.5rem;
     text-shadow: 0 0 15px rgba(51, 204, 255, 0.7);
     box-shadow: inset 0 0 30px rgba(0, 0, 0, 1);
-    transition: all 0.3s ease;
+    transition: opacity 0.5s ease, filter 0.5s ease, all 0.3s ease;
     overflow: hidden;
 }
 
@@ -148,15 +150,16 @@ body {
     letter-spacing: -1px;
 }
 
-.vfd-display.power-off {
-    background: var(--vfd-off) !important;
-    border-color: #050505 !important;
-    box-shadow: none !important;
+.vfd-display.dimmed {
+    opacity: 0.5;
+    filter: brightness(0.45) saturate(0.6);
+    transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
-.vfd-display.power-off * {
-    opacity: 0 !important;
-    transition: opacity 0.2s ease;
+.vfd-display.dimmed-low {
+    opacity: 0.3;
+    filter: brightness(0.15) saturate(0.2);
+    transition: opacity 0.5s ease, filter 0.5s ease;
 }
 
 .track-counter, .time-counter, .volume-center {
@@ -275,13 +278,25 @@ body {
 
 .freq-labels {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     margin-top: 4px;
     font-size: 9px;
     color: var(--mc-blue);
     font-family: Arial, sans-serif;
     opacity: 0.6;
-    padding: 0 5px;
+    gap: 0;
+}
+
+.freq-labels-side {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+    padding: 0 2px;
+}
+
+.freq-labels-sep {
+    width: 6px;
+    flex-shrink: 0;
 }
 
 .knob-container {
@@ -572,6 +587,58 @@ body {
     gap: 20px;
 }
 
+/* STANDBY CONFIRMATION POPUP */
+.standby-confirm-popup {
+    display: none;
+    position: absolute;
+    bottom: 110px;
+    right: 70px;
+    width: 220px;
+    background: rgba(0, 0, 0, 0.95);
+    border: 5px solid var(--mc-gold);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(145, 38, 36, 0.15);
+    z-index: 3100;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.standby-confirm-popup.open {
+    display: flex;
+}
+
+.standby-confirm-title {
+    color: var(--mc-gold);
+    font-family: 'Roboto', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--mc-gold);
+    width: 100%;
+    text-align: center;
+    padding-bottom: 12px;
+}
+
+.standby-confirm-msg {
+    color: var(--mc-green);
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.standby-confirm-btns {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+}
+
 .options-row {
     display: flex;
     justify-content: center;
@@ -662,9 +729,9 @@ body {
     display: none;
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-40%);
     bottom: 10px;
-    width: 380px;
+    width: 450px;
     z-index: 3500;
     filter: drop-shadow(0 -8px 30px rgba(0, 0, 0, 0.9));
 }
@@ -717,22 +784,101 @@ body {
     overflow-y: auto;
 }
 
-/* Style optionnel pour les éléments de la liste (li) */
-#playlist-items li {
-    padding: 10px 18px;
+/* Item playlist */
+#playlist-items li.playlist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 18px;
     border-bottom: 1px solid #1a1a1a;
     cursor: pointer;
     transition: background 0.2s;
-    font-size: 12px;
-    letter-spacing: 1px;
 }
 
-#playlist-items li:hover {
-    background: rgba(51, 204, 255, 0.1);
+#playlist-items li.playlist-item:hover {
+    background: rgba(51, 204, 255, 0.07);
 }
 
-#playlist-items li.active-track {
+/* Numéro de piste */
+.playlist-item-num {
+    color: var(--mc-gold);
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    min-width: 28px;
+    text-align: right;
+    padding-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Bloc infos texte */
+.playlist-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.playlist-item-title,
+.playlist-item-artist,
+.playlist-item-album {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--mc-blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Label doré (TITLE / ARTIST / ALBUM) */
+.playlist-tag {
+    color: var(--mc-gold);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-right: 5px;
+    opacity: 0.85;
+}
+
+/* Piste active */
+#playlist-items li.active-track .playlist-item-num {
     color: var(--mc-green);
+}
+
+#playlist-items li.active-track .playlist-item-title,
+#playlist-items li.active-track .playlist-item-artist,
+#playlist-items li.active-track .playlist-item-album {
+    color: var(--mc-green);
+}
+
+#playlist-items li.active-track .playlist-tag {
+    color: var(--mc-green);
+    opacity: 1;
+}
+
+/* Scrollbar personnalisée pour la playlist */
+#playlist-items::-webkit-scrollbar {
+    width: 12px;
+}
+
+#playlist-items::-webkit-scrollbar-track {
+    background: #000000;
+    border-radius: 6px;
+}
+
+#playlist-items::-webkit-scrollbar-thumb {
+    background: var(--mc-blue);
+    border-radius: 6px;
+    border: 2px solid #000000;
+}
+
+#playlist-items::-webkit-scrollbar-thumb:hover {
+    background: #4dd4ff;
+}
+
+/* Pour Firefox */
+#playlist-items {
+    scrollbar-width: thin;
+    scrollbar-color: var(--mc-blue) #000000;
 }
 
 /* --- DRAG & DROP OVERLAY --- */

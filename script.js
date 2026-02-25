@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Playlist state
     let playlist = [];
+    let playlistMeta = []; // cache des métadonnées { title, artist, album } par index
     let currentIndex = 0;
     let volTimeout;
     let currentCoverData = null;
@@ -106,16 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- VARIABLES VOLUME (NOUVEAU) ---
     let volumeInterval;
 
-    // --- VISUALISEUR (VU-MÈTRE) ---
+    // --- VISUALISEUR STÉRÉO L/R ---
     const canvas = document.getElementById('vfd-visualizer');
     const ctx = canvas.getContext('2d');
-    let audioCtx, analyser, source, dataArray;
+    let audioCtx, analyserL, analyserR, source, dataArrayL, dataArrayR;
 
     function initVisualizer() {
         if (audioCtx) return;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        source = audioCtx.createMediaElementSource(audio);
 
         // --- CONFIGURATION FILTRES TONALITÉ ---
         bassFilter = audioCtx.createBiquadFilter();
@@ -128,17 +127,34 @@ document.addEventListener('DOMContentLoaded', () => {
         trebleFilter.frequency.value = 3000;
         trebleFilter.gain.value = trebleLevel;
 
-        // Chaînage : Source -> Basses -> Aigus -> Analyseur -> Destination
+        // Splitter stéréo
+        const splitter = audioCtx.createChannelSplitter(2);
+        const merger   = audioCtx.createChannelMerger(2);
+
+        analyserL = audioCtx.createAnalyser();
+        analyserR = audioCtx.createAnalyser();
+        analyserL.fftSize = 32;
+        analyserR.fftSize = 32;
+
+        source = audioCtx.createMediaElementSource(audio);
+
+        // Chaîne : Source → Bass → Treble → Splitter → AnalyserL/R → Merger → Destination
         source.connect(bassFilter);
         bassFilter.connect(trebleFilter);
-        trebleFilter.connect(analyser);
-        analyser.connect(audioCtx.destination);
+        trebleFilter.connect(splitter);
 
-        analyser.fftSize = 64;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        splitter.connect(analyserL, 0);
+        splitter.connect(analyserR, 1);
+
+        splitter.connect(merger, 0, 0);
+        splitter.connect(merger, 1, 1);
+        merger.connect(audioCtx.destination);
+
+        dataArrayL = new Uint8Array(analyserL.frequencyBinCount);
+        dataArrayR = new Uint8Array(analyserR.frequencyBinCount);
 
         const dpr = window.devicePixelRatio || 1;
-        canvas.width = canvas.offsetWidth * dpr;
+        canvas.width  = canvas.offsetWidth  * dpr;
         canvas.height = canvas.offsetHeight * dpr;
         ctx.scale(dpr, dpr);
         draw();
@@ -146,32 +162,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function draw() {
         requestAnimationFrame(draw);
-        if (!analyser) return;
-        analyser.getByteFrequencyData(dataArray);
-        const logicalWidth = canvas.width / (window.devicePixelRatio || 1);
+        if (!analyserL || !analyserR) return;
+
+        analyserL.getByteFrequencyData(dataArrayL);
+        analyserR.getByteFrequencyData(dataArrayR);
+
+        const logicalWidth  = canvas.width  / (window.devicePixelRatio || 1);
         const logicalHeight = canvas.height / (window.devicePixelRatio || 1);
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
-        const barWidth = Math.floor((logicalWidth / dataArray.length) * 0.85);
-        const segmentHeight = 4;
-        const segmentGap = 1;
-        const totalSegments = Math.floor(logicalHeight / (segmentHeight + segmentGap));
-        let x = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-            const intensity = dataArray[i] / 255;
-            const segmentsToFill = Math.floor(intensity * totalSegments);
-            for (let j = 0; j < segmentsToFill; j++) {
-                const y = Math.floor(logicalHeight - (j * (segmentHeight + segmentGap)));
-                let color = "#33ccff";
-                const percent = j / totalSegments;
-                if (percent > 0.75) color = "#ff0000";
-                else if (percent > 0.55) color = "#ffaa00";
-                ctx.fillStyle = color;
-                ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, segmentHeight);
-                ctx.fillStyle = "rgba(255,255,255,0.1)";
-                ctx.fillRect(Math.floor(x), y - segmentHeight, barWidth, 1);
+
+        const SEP        = 6;
+        const halfW      = (logicalWidth - SEP) / 2;
+        const numBars    = dataArrayL.length;
+        const barSlot    = halfW / numBars;
+        const barWidth   = Math.floor(barSlot * 0.82);
+        const segH       = 4;
+        const segGap     = 1;
+        const totalSegs  = Math.floor(logicalHeight / (segH + segGap));
+
+        const drawChannel = (dataArray, offsetX) => {
+            for (let i = 0; i < numBars; i++) {
+                const intensity    = dataArray[i] / 255;
+                const segsToFill   = Math.floor(intensity * totalSegs);
+                const x = Math.floor(offsetX + i * barSlot);
+                for (let j = 0; j < segsToFill; j++) {
+                    const y       = Math.floor(logicalHeight - j * (segH + segGap));
+                    const percent = j / totalSegs;
+                    let color     = "#33ccff";
+                    if (percent > 0.75)      color = "#ff0000";
+                    else if (percent > 0.55) color = "#ffaa00";
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y - segH, barWidth, segH);
+                    ctx.fillStyle = "rgba(255,255,255,0.08)";
+                    ctx.fillRect(x, y - segH, barWidth, 1);
+                }
             }
-            x += (logicalWidth / dataArray.length);
-        }
+        };
+
+        // Canal gauche
+        drawChannel(dataArrayL, 0);
+
+        // Séparateur central (espace vide)
+        // Canal droit
+        drawChannel(dataArrayR, halfW + SEP);
     }
 
     // --- MEDIA SESSION (CHROME/EDGE CONTROLS) ---
@@ -260,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FONCTION AFFICHAGE TONALITÉ SUR VFD ---
     const showToneOnVFD = (label, value) => {
-        if (vfdDisplay.classList.contains('power-off')) return;
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
         volLabel.innerText = label;
@@ -318,6 +350,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     toneResetBtn?.addEventListener('mouseenter', () => showToneOnVFD("TONE", 0));
 
+    // --- LECTURE DE TOUS LES TAGS AU CHARGEMENT ---
+    const readAllMeta = (files) => {
+        files.forEach((file, index) => {
+            jsmediatags.read(file, {
+                onSuccess: (tag) => {
+                    const tags = tag.tags;
+                    playlistMeta[index] = {
+                        title:  tags.title  ? tags.title.toUpperCase()  : file.name.replace(/\.[^/.]+$/, "").toUpperCase(),
+                        artist: tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST",
+                        album:  tags.album  ? tags.album.toUpperCase()  : "SINGLE"
+                    };
+                },
+                onError: () => {
+                    playlistMeta[index] = {
+                        title:  file.name.replace(/\.[^/.]+$/, "").toUpperCase(),
+                        artist: "UNKNOWN ARTIST",
+                        album:  "SINGLE"
+                    };
+                }
+            });
+        });
+    };
+
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
@@ -353,6 +408,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
                     const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
 
+                    // Stocker dans le cache
+                    playlistMeta[index] = { title, artist, album };
+
                     statusLine.innerText = title;
                     setTimeout(() => fitText(statusLine, 30), 10);
                     artistDisplay.innerText = artist;
@@ -372,6 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 onError: function () {
                     const title = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+
+                    // Stocker dans le cache même sans tags
+                    playlistMeta[index] = { title, artist: "UNKNOWN ARTIST", album: "SINGLE" };
+
                     statusLine.innerText = title;
                     setTimeout(() => fitText(statusLine, 30), 10);
                     artistDisplay.innerText = "DS200 PLAYER";
@@ -518,40 +580,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reconstruire la liste
         playlistItems.innerHTML = "";
-        playlist.forEach((file, index) => {
-            const li = document.createElement('li');
-            li.style.padding = "10px 18px";
-            li.style.borderBottom = "1px solid #111";
-            li.style.cursor = "pointer";
-            li.style.color = "#33ccff";
-            li.style.fontSize = "12px";
-            li.style.letterSpacing = "1px";
 
-            if (index === currentIndex) {
-                li.classList.add('active-track');
-                li.innerHTML = `▶ ${index + 1}. ${file.name.toUpperCase()}`;
-            } else {
-                li.innerText = `${index + 1}. ${file.name.toUpperCase()}`;
-            }
+        const buildItem = (file, index) => {
+            const meta = playlistMeta[index];
+            const title  = meta ? meta.title  : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+            const artist = meta ? meta.artist : "—";
+            const album  = meta ? meta.album  : "—";
+            const isActive = index === currentIndex;
+
+            const li = document.createElement('li');
+            li.className = 'playlist-item' + (isActive ? ' active-track' : '');
+
+            li.innerHTML = `
+                <div class="playlist-item-num">${isActive ? '▶' : ''} ${index + 1}</div>
+                <div class="playlist-item-info">
+                    <div class="playlist-item-title"><span class="playlist-tag">TITLE</span> ${title}</div>
+                    <div class="playlist-item-artist"><span class="playlist-tag">ARTIST</span> ${artist}</div>
+                    <div class="playlist-item-album"><span class="playlist-tag">ALBUM</span> ${album}</div>
+                </div>`;
 
             li.addEventListener('click', (e) => {
                 e.stopPropagation();
                 currentIndex = index;
                 loadTrack(currentIndex);
-                // Mettre à jour le titre actif sans fermer
+                // Mettre à jour visuellement sans fermer
                 playlistItems.querySelectorAll('li').forEach((el, i) => {
-                    el.classList.remove('active-track');
-                    el.style.color = "#33ccff";
-                    if (i === currentIndex) {
-                        el.classList.add('active-track');
-                        el.innerHTML = `▶ ${i + 1}. ${playlist[i].name.toUpperCase()}`;
-                    } else {
-                        el.innerText = `${i + 1}. ${playlist[i].name.toUpperCase()}`;
-                    }
+                    el.classList.toggle('active-track', i === currentIndex);
+                    const numEl = el.querySelector('.playlist-item-num');
+                    if (numEl) numEl.textContent = `${i === currentIndex ? '▶ ' : ''}${i + 1}`;
                 });
             });
 
-            playlistItems.appendChild(li);
+            return li;
+        };
+
+        playlist.forEach((file, index) => {
+            playlistItems.appendChild(buildItem(file, index));
         });
 
         playlistModal.classList.add('open');
@@ -589,6 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (optionsBtn) {
         optionsBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (playlist.length === 0) return;
             const isVisible = optionsPopup.style.display === 'flex';
             optionsPopup.style.display = isVisible ? 'none' : 'flex';
         });
@@ -641,11 +706,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', () => {
         if (optionsPopup) optionsPopup.style.display = 'none';
+        if (standbyConfirm) standbyConfirm.classList.remove('open');
     });
     if (optionsPopup) optionsPopup.addEventListener('click', (e) => e.stopPropagation());
 
     const showVolumeOnVFD = () => {
-        if (vfdDisplay.classList.contains('power-off')) return;
         const volContainer = document.querySelector('.volume-center');
         const volLabel = volContainer.querySelector('.vol-label');
         const currentVol = Math.round(audio.volume * 100);
@@ -742,18 +807,54 @@ document.addEventListener('DOMContentLoaded', () => {
     inputKnob.addEventListener('click', () => fileLoader.click());
     fileLoader.addEventListener('change', (e) => {
         playlist = Array.from(e.target.files);
+        playlistMeta = [];
+        readAllMeta(playlist);
         if (playlist.length > 0) { currentIndex = 0; loadTrack(currentIndex); }
     });
 
+    // Niveaux de luminosité VFD : 0 = plein, 1 = dim, 2 = très dim
+    let vfdBrightness = 0;
+
     displayBtn.addEventListener('click', () => {
-        vfdDisplay.classList.toggle('power-off');
-        if (displayLed) displayLed.classList.toggle('active');
+        vfdBrightness = (vfdBrightness + 1) % 3;
+
+        vfdDisplay.classList.remove('dimmed', 'dimmed-low');
+
+        if (vfdBrightness === 1) {
+            vfdDisplay.classList.add('dimmed');
+            if (displayLed) displayLed.classList.remove('active');
+        } else if (vfdBrightness === 2) {
+            vfdDisplay.classList.add('dimmed-low');
+            if (displayLed) displayLed.classList.remove('active');
+        } else {
+            // retour plein
+            if (displayLed) displayLed.classList.add('active');
+        }
     });
 
-    standbyBtn.addEventListener('click', () => {
+    const standbyConfirm = document.getElementById('standby-confirm');
+    const standbyYes = document.getElementById('standby-yes');
+    const standbyNo = document.getElementById('standby-no');
+
+    standbyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Fermer le popup options si ouvert
+        if (optionsPopup) optionsPopup.style.display = 'none';
+        standbyConfirm.classList.toggle('open');
+    });
+
+    standbyYes.addEventListener('click', () => {
+        standbyConfirm.classList.remove('open');
         statusLine.innerText = "SHUTDOWN...";
         setTimeout(() => window.location.reload(), 500);
     });
+
+    standbyNo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        standbyConfirm.classList.remove('open');
+    });
+
+    if (standbyConfirm) standbyConfirm.addEventListener('click', (e) => e.stopPropagation());
 
     audio.volume = 0.05;
     const knobOuter = volumeKnob.parentElement;
@@ -800,6 +901,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (files.length === 0) return;
 
         playlist = files;
+        playlistMeta = [];
+        readAllMeta(playlist);
         currentIndex = 0;
         loadTrack(currentIndex);
         playPauseBtn.classList.add('active');
@@ -851,6 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(blob => new File([blob], p.split(/[\\/]/).pop(), { type: blob.type }))
             )).then(files => {
                 playlist = files;
+                playlistMeta = [];
+                readAllMeta(playlist);
                 currentIndex = 0;
                 loadTrack(currentIndex);
                 playPauseBtn.classList.add('active');
