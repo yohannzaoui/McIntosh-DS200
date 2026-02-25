@@ -745,9 +745,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playlist.length > 0) { currentIndex = 0; loadTrack(currentIndex); }
     });
 
+    // Niveaux de luminosité VFD : 0 = plein, 1 = dim, 2 = très dim
+    let vfdBrightness = 0;
+
     displayBtn.addEventListener('click', () => {
-        vfdDisplay.classList.toggle('dimmed');
-        if (displayLed) displayLed.classList.toggle('active');
+        vfdBrightness = (vfdBrightness + 1) % 3;
+
+        vfdDisplay.classList.remove('dimmed', 'dimmed-low');
+
+        if (vfdBrightness === 1) {
+            vfdDisplay.classList.add('dimmed');
+            if (displayLed) displayLed.classList.remove('active');
+        } else if (vfdBrightness === 2) {
+            vfdDisplay.classList.add('dimmed-low');
+            if (displayLed) displayLed.classList.remove('active');
+        } else {
+            // retour plein
+            if (displayLed) displayLed.classList.add('active');
+        }
     });
 
     const standbyConfirm = document.getElementById('standby-confirm');
