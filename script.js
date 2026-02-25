@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Playlist state
     let playlist = [];
+    let playlistMeta = []; // cache des métadonnées { title, artist, album } par index
     let currentIndex = 0;
     let volTimeout;
     let currentCoverData = null;
@@ -317,6 +318,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     toneResetBtn?.addEventListener('mouseenter', () => showToneOnVFD("TONE", 0));
 
+    // --- LECTURE DE TOUS LES TAGS AU CHARGEMENT ---
+    const readAllMeta = (files) => {
+        files.forEach((file, index) => {
+            jsmediatags.read(file, {
+                onSuccess: (tag) => {
+                    const tags = tag.tags;
+                    playlistMeta[index] = {
+                        title:  tags.title  ? tags.title.toUpperCase()  : file.name.replace(/\.[^/.]+$/, "").toUpperCase(),
+                        artist: tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST",
+                        album:  tags.album  ? tags.album.toUpperCase()  : "SINGLE"
+                    };
+                },
+                onError: () => {
+                    playlistMeta[index] = {
+                        title:  file.name.replace(/\.[^/.]+$/, "").toUpperCase(),
+                        artist: "UNKNOWN ARTIST",
+                        album:  "SINGLE"
+                    };
+                }
+            });
+        });
+    };
+
     // --- CHARGEMENT DE PISTE ---
     const loadTrack = (index) => {
         if (playlist.length > 0 && playlist[index]) {
@@ -352,6 +376,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const artist = tags.artist ? tags.artist.toUpperCase() : "UNKNOWN ARTIST";
                     const album = tags.album ? tags.album.toUpperCase() : "SINGLE";
 
+                    // Stocker dans le cache
+                    playlistMeta[index] = { title, artist, album };
+
                     statusLine.innerText = title;
                     setTimeout(() => fitText(statusLine, 30), 10);
                     artistDisplay.innerText = artist;
@@ -371,6 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 onError: function () {
                     const title = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+
+                    // Stocker dans le cache même sans tags
+                    playlistMeta[index] = { title, artist: "UNKNOWN ARTIST", album: "SINGLE" };
+
                     statusLine.innerText = title;
                     setTimeout(() => fitText(statusLine, 30), 10);
                     artistDisplay.innerText = "DS200 PLAYER";
@@ -517,40 +548,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reconstruire la liste
         playlistItems.innerHTML = "";
-        playlist.forEach((file, index) => {
-            const li = document.createElement('li');
-            li.style.padding = "10px 18px";
-            li.style.borderBottom = "1px solid #111";
-            li.style.cursor = "pointer";
-            li.style.color = "#33ccff";
-            li.style.fontSize = "12px";
-            li.style.letterSpacing = "1px";
 
-            if (index === currentIndex) {
-                li.classList.add('active-track');
-                li.innerHTML = `▶ ${index + 1}. ${file.name.toUpperCase()}`;
-            } else {
-                li.innerText = `${index + 1}. ${file.name.toUpperCase()}`;
-            }
+        const buildItem = (file, index) => {
+            const meta = playlistMeta[index];
+            const title  = meta ? meta.title  : file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+            const artist = meta ? meta.artist : "—";
+            const album  = meta ? meta.album  : "—";
+            const isActive = index === currentIndex;
+
+            const li = document.createElement('li');
+            li.className = 'playlist-item' + (isActive ? ' active-track' : '');
+
+            li.innerHTML = `
+                <div class="playlist-item-num">${isActive ? '▶' : ''} ${index + 1}</div>
+                <div class="playlist-item-info">
+                    <div class="playlist-item-title"><span class="playlist-tag">TITLE</span> ${title}</div>
+                    <div class="playlist-item-artist"><span class="playlist-tag">ARTIST</span> ${artist}</div>
+                    <div class="playlist-item-album"><span class="playlist-tag">ALBUM</span> ${album}</div>
+                </div>`;
 
             li.addEventListener('click', (e) => {
                 e.stopPropagation();
                 currentIndex = index;
                 loadTrack(currentIndex);
-                // Mettre à jour le titre actif sans fermer
+                // Mettre à jour visuellement sans fermer
                 playlistItems.querySelectorAll('li').forEach((el, i) => {
-                    el.classList.remove('active-track');
-                    el.style.color = "#33ccff";
-                    if (i === currentIndex) {
-                        el.classList.add('active-track');
-                        el.innerHTML = `▶ ${i + 1}. ${playlist[i].name.toUpperCase()}`;
-                    } else {
-                        el.innerText = `${i + 1}. ${playlist[i].name.toUpperCase()}`;
-                    }
+                    el.classList.toggle('active-track', i === currentIndex);
+                    const numEl = el.querySelector('.playlist-item-num');
+                    if (numEl) numEl.textContent = `${i === currentIndex ? '▶ ' : ''}${i + 1}`;
                 });
             });
 
-            playlistItems.appendChild(li);
+            return li;
+        };
+
+        playlist.forEach((file, index) => {
+            playlistItems.appendChild(buildItem(file, index));
         });
 
         playlistModal.classList.add('open');
@@ -742,6 +775,8 @@ document.addEventListener('DOMContentLoaded', () => {
     inputKnob.addEventListener('click', () => fileLoader.click());
     fileLoader.addEventListener('change', (e) => {
         playlist = Array.from(e.target.files);
+        playlistMeta = [];
+        readAllMeta(playlist);
         if (playlist.length > 0) { currentIndex = 0; loadTrack(currentIndex); }
     });
 
@@ -834,6 +869,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (files.length === 0) return;
 
         playlist = files;
+        playlistMeta = [];
+        readAllMeta(playlist);
         currentIndex = 0;
         loadTrack(currentIndex);
         playPauseBtn.classList.add('active');
@@ -885,6 +922,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(blob => new File([blob], p.split(/[\\/]/).pop(), { type: blob.type }))
             )).then(files => {
                 playlist = files;
+                playlistMeta = [];
+                readAllMeta(playlist);
                 currentIndex = 0;
                 loadTrack(currentIndex);
                 playPauseBtn.classList.add('active');
