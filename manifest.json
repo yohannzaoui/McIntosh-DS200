@@ -1,7 +1,7 @@
 {
-  "short_name": "McIntosh-DS200",
-  "name": "McIntosh-DS200 Streaming DAC",
-  "description": "McIntosh DAP Inspired by DS200 Streaming DAC",
+  "short_name": "McIntosh DS200",
+  "name": "McIntoshC",
+  "description": "DAP Inspired by DS200 Streaming DAC",
   "icons": [
     {
       "src": "img/favicon.png",
@@ -14,10 +14,9 @@
       "type": "image/png"
     }
   ],
-  "start_url": ".",
+  "start_url": "https://hdsoundsystem.github.io/McIntosh-DAP-DS200/",
   "display": "standalone",
-  "theme_color": "#1a1a1b",
-  "background_color": "#050505",
-  "orientation": "landscape",
-  "scope": "/"
+  "theme_color": "#080808",
+  "background_color": "#080808",
+  "orientation": "landscape"
 }
